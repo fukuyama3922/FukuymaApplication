@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import static android.R.attr.button;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = MainActivity.class.getName();
     private static final int QUANTITY_MAX = 9999;
@@ -27,8 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //initView
     private void initView() {
-        final TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
-        textViewQuantity.setText("" + quantity);
+        showQuantity();
 
         Button buttonPlus = (Button) findViewById(R.id.button_plus);
         buttonPlus.setOnClickListener(this);
@@ -52,22 +49,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void culcQuantityPlus() {
-        TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
         //数量が9,999未満のとき数量に1を足す
         if (quantity < QUANTITY_MAX) {
             quantity += QUANTITY_ADD;
             //textviewに表示する
-            textViewQuantity.setText("" + quantity);
+            showQuantity();
         }
     }
 
     private void culcQuantityMinus() {
-        TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
         //数量が0を超える場合は-1する
         if (quantity > QUANTITY_MIN) {
             quantity -= QUANTITY_ADD;
             //textviewに表示する
-            textViewQuantity.setText("" + quantity);
+            showQuantity();
         }
+    }
+
+    private void showQuantity() {
+        TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
+        textViewQuantity.setText(String.valueOf(quantity));
     }
 }
