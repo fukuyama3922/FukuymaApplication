@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -12,7 +13,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.fukuyama.fukuyamaapplication.R.id.textView3;
+import static android.R.id.list;
+import static com.fukuyama.fukuyamaapplication.R.id.label_time;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = MainActivity.class.getName();
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int QUANTITY_ADD = 1;
     private int quantity = QUANTITY_MIN;
 
-    private static SimpleDateFormat formatter = new SimpleDateFormat("HH:MM:ss.");
+    private final SimpleDateFormat formatter = new SimpleDateFormat("HH:MM:ss.");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +44,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button buttonMinus = (Button) findViewById(R.id.button_minus);
         buttonMinus.setOnClickListener(this);
 
-        final TextView textView3;
-        Timer timer1;
-        textView3 = (TextView)findViewById(R.id.textView3);
-        timer1 = new Timer();
-        timer1.scheduleAtFixedRate(new TimerTask() {
+        Button buttonAdd = (Button) findViewById(R.id.button_add);
+        buttonAdd.setOnClickListener(this);
+
+        final TextView label_time = (TextView)findViewById (R.id.label_time);
+        Timer timer;
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                Log.d("run", "TimerTask Thread id = " + Thread.currentThread().getId());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        // TODO Auto-generated method stub
-                        Log.d("run", "runOnUiThread Thread id = " + Thread.currentThread().getId());
-                        textView3.setText(formatter.format(new Date()));
+                        label_time.setText(formatter.format(new Date()));
                     }
                 });
             }
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void culcQuantityPlus() {
-        //数量が9,999未満のとき数量に1を足す
+        //数量が以下のとき数量に1を足す
         if (quantity < QUANTITY_MAX) {
             quantity += QUANTITY_ADD;
             //textviewに表示する
@@ -105,9 +106,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textViewQuantity.setText(String.valueOf(quantity));
     }
 
+    public void addQuantityInfo() {
+        //時刻を取得
+        TextView textView = (TextView) findViewById(R.id.label_time);
+        String time = textView.getText().toString();
+        //コメントを取得する
+        EditText edittext = (EditText) findViewById(R.id.edit_comment);
+        String comment = edittext.getText().toString();
+        //数量情報＝1リストを一件追加する
+        QuantityInfo quantityInfo = new QuantityInfo();
+        quantityInfo.setTime(time);
+        quantityInfo.setComment(comment);
+        quantityInfo.setQuantity(quantity);
+//        list.add(quantityInfo);
+//        //リストの表示更新
+//        adapter.notifyDataSetChanged();
+    }
 
-  public void showTimer() {
 
   }
-}
+
 
