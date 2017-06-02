@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,11 +18,15 @@ import static android.R.id.list;
 import static com.fukuyama.fukuyamaapplication.R.id.label_time;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private ArrayList<QuantityInfo> list = new ArrayList<>();
     private static final String TAG = MainActivity.class.getName();
     private static final int QUANTITY_MAX = 9999;
     private static final int QUANTITY_MIN = 0;
     private static final int QUANTITY_ADD = 1;
     private int quantity = QUANTITY_MIN;
+    private final Timer timer = new Timer();
+    private TextView timerTextView = null;
+    private TimerTask timerTask = null;
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("HH:MM:ss.");
 
@@ -35,6 +40,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //initView
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //現在時刻の表示
+                        timerTextView.setText(formatter.format(new Date()));
+                    }
+                });
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //バックグラウンドでの時刻表示の廃止
+        timerTask.cancel();
+    }
+
+
     private void initView() {
         showQuantity();
 
@@ -47,31 +80,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button buttonAdd = (Button) findViewById(R.id.button_add);
         buttonAdd.setOnClickListener(this);
 
-        final TextView label_time = (TextView)findViewById (R.id.label_time);
-        Timer timer;
+        timerTextView = (TextView) findViewById(R.id.label_time);
 
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        label_time.setText(formatter.format(new Date()));
-                    }
-                });
-            }
-        }, 0, 10);
     }
-
-
-
-
-
 
     @Override
     public void onClick(View view) {
-        Log.d(TAG, "onClick");
         switch (view.getId()) {
             case R.id.button_plus:
                 culcQuantityPlus();
@@ -108,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void addQuantityInfo() {
         //時刻を取得
-        TextView textView = (TextView) findViewById(R.id.label_time);
+        TextView textView = (TextView) findViewById(R.id.textview_time);
         String time = textView.getText().toString();
         //コメントを取得する
         EditText edittext = (EditText) findViewById(R.id.edit_comment);
@@ -122,8 +136,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        //リストの表示更新
 //        adapter.notifyDataSetChanged();
     }
-
-
-  }
+}
 
 
