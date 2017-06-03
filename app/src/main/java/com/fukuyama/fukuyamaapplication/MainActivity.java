@@ -4,8 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -15,9 +17,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.R.id.list;
-import static com.fukuyama.fukuyamaapplication.R.id.label_time;
+import static com.fukuyama.fukuyamaapplication.R.id.textview_time;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener  {
     private ArrayList<QuantityInfo> list = new ArrayList<>();
     private static final String TAG = MainActivity.class.getName();
     private static final int QUANTITY_MAX = 9999;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final Timer timer = new Timer();
     private TextView timerTextView = null;
     private TimerTask timerTask = null;
+    private QuantityInfoAdapter adapter = null;
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("HH:MM:ss.");
 
@@ -71,16 +74,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initView() {
         showQuantity();
 
-        Button buttonPlus = (Button) findViewById(R.id.button_plus);
+        TextView quantityTextView = (TextView) findViewById(R.id.textview_quantity);
+        quantityTextView.setText("" + quantity);
+
+
+       final Button buttonPlus = (Button) findViewById(R.id.button_plus);
         buttonPlus.setOnClickListener(this);
 
-        Button buttonMinus = (Button) findViewById(R.id.button_minus);
+        final Button buttonMinus = (Button) findViewById(R.id.button_minus);
         buttonMinus.setOnClickListener(this);
 
-        Button buttonAdd = (Button) findViewById(R.id.button_add);
-        buttonAdd.setOnClickListener(this);
+        final Button addButton = (Button) findViewById(R.id.button_add);
+        addButton.setOnClickListener(this);
 
-        timerTextView = (TextView) findViewById(R.id.label_time);
+        timerTextView = (TextView) findViewById(R.id.textview_time);
+
+        ListView quantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
+        adapter = new QuantityInfoAdapter(MainActivity.this);
+        adapter.setQuantityInfoList(list);
+        quantityInfoListView.setAdapter(adapter);
+        quantityInfoListView.setOnItemClickListener(this);
 
     }
 
@@ -89,11 +102,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.button_plus:
                 culcQuantityPlus();
-                break;
+                return;
 
             case R.id.button_minus:
                 culcQuantityMinus();
-                break;
+                return;
+
+            case R.id.button_add:
+                // 追加ボタンを押下された場合
+                // 数量情報を1件追加
+                addQuantityInfo();
+                return;
+            default:
+                return;
+
         }
     }
 
@@ -125,16 +147,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView textView = (TextView) findViewById(R.id.textview_time);
         String time = textView.getText().toString();
         //コメントを取得する
-        EditText edittext = (EditText) findViewById(R.id.edit_comment);
+        EditText edittext = (EditText) findViewById(R.id.textview_comment);
         String comment = edittext.getText().toString();
         //数量情報＝1リストを一件追加する
         QuantityInfo quantityInfo = new QuantityInfo();
         quantityInfo.setTime(time);
         quantityInfo.setComment(comment);
         quantityInfo.setQuantity(quantity);
-//        list.add(quantityInfo);
+      list.add(quantityInfo);
 //        //リストの表示更新
-//        adapter.notifyDataSetChanged();
+   adapter.notifyDataSetChanged();
+    }
+
+    
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        QuantityInfo info = list.get(position);
+        //info.setSelected(!info.isSelected());
+        adapter.notifyDataSetChanged();
     }
 }
 
