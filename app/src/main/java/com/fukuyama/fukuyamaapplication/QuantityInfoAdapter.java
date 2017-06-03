@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class QuantityInfoAdapter extends BaseAdapter{
+public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickListener{
 
     private LayoutInflater layoutInflater = null;
     private ArrayList<QuantityInfo> quantityInfoList;
@@ -56,23 +56,23 @@ public class QuantityInfoAdapter extends BaseAdapter{
 //            // 行を緑に変更
 //            convertView.setBackgroundColor(Color.GREEN);
 //        } else {
-            // 奇数か偶数か
-            switch (position % 2) {
-                case 0:
-                    // 偶数だった場合
-                    convertView.setBackgroundColor(Color.BLUE);
-                    break;
-                case 1:
-                    // 奇数だった場合
-                    convertView.setBackgroundColor(0);
-                    break;
+        // 奇数か偶数か
+        switch (position % 2) {
+            case 0:
+                // 偶数だった場合
+                convertView.setBackgroundColor(Color.BLUE);
+                break;
+            case 1:
+                // 奇数だった場合
+                convertView.setBackgroundColor(0);
+                break;
 
-            }
-      //  }
-//
-//        Button deleteButton = (Button) convertView.findViewById(R.id.button_delete);
-//        deleteButton.setOnClickListener(this);
-//        deleteButton.setTag(position);
+        }
+
+
+        Button deleteButton = (Button) convertView.findViewById(R.id.button_delete);
+        deleteButton.setOnClickListener(this);
+        deleteButton.setTag(position);
 
         //((CheckBox) convertView.findViewById(R.id.chk_select)).setChecked(info.isSelected());
         ((TextView) convertView.findViewById(R.id.textview_time)).setText(info.getTime());
@@ -83,14 +83,15 @@ public class QuantityInfoAdapter extends BaseAdapter{
         return convertView;
     }
 
-//    @Override
-//    // 削除ボタン押下後の処理
-//    public void onClick(View v) {
-//
-//        // リストの中から選択したinfoを削除
-//        int position = Integer.valueOf(v.getTag().toString()).intValue();
-//        quantityInfoList.remove(position);
-//        // listViewの表示更新
-//        notifyDataSetChanged();
+    @Override
+    // 削除ボタン押下後の処理
+    public void onClick(View v) {
+
+        // リストの中から選択したinfoを削除
+        int position = Integer.valueOf(v.getTag().toString()).intValue();
+        quantityInfoList.remove(position);
+        // listViewの表示更新
+        notifyDataSetChanged();
 
     }
+}
