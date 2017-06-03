@@ -50,14 +50,14 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/textview_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="TextView" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/textview_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -66,7 +66,7 @@
             android:text="Name" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/button_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -74,13 +74,14 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@android:color/holo_orange_dark"
         android:orientation="horizontal">
 
         <ListView
+            android:id="@+id/listview_quantity_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
