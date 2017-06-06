@@ -50,23 +50,24 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         }
 
         QuantityInfo info = quantityInfoList.get(position);
+        
+        // 行が選択されていたら
+        if (info.isSelected()) {
+            // 行を緑に変更
+            convertView.setBackgroundColor(Color.GREEN);
+        } else {
+            // 奇数か偶数か
+            switch (position % 2) {
+                case 0:
+                    // 偶数だった場合
+                    convertView.setBackgroundColor(Color.BLUE);
+                    break;
+                case 1:
+                    // 奇数だった場合
+                    convertView.setBackgroundColor(0);
+                    break;
 
-//        // 行が選択されていたら
-//        if (info.isSelected()) {
-//            // 行を緑に変更
-//            convertView.setBackgroundColor(Color.GREEN);
-//        } else {
-        // 奇数か偶数か
-        switch (position % 2) {
-            case 0:
-                // 偶数だった場合
-                convertView.setBackgroundColor(Color.BLUE);
-                break;
-            case 1:
-                // 奇数だった場合
-                convertView.setBackgroundColor(0);
-                break;
-
+            }
         }
 
 
@@ -74,7 +75,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         deleteButton.setOnClickListener(this);
         deleteButton.setTag(position);
 
-        //((CheckBox) convertView.findViewById(R.id.chk_select)).setChecked(info.isSelected());
+        ((CheckBox) convertView.findViewById(R.id.chk_select)).setChecked(info.isSelected());
         ((TextView) convertView.findViewById(R.id.textview_time)).setText(info.getTime());
 
         ((TextView) convertView.findViewById(R.id.textview_quantity)).setText("" + info.getQuantity());
