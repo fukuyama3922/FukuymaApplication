@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FukuyamaApplication.iml" filepath="$PROJECT_DIR$/FukuyamaApplication.iml" />
+      <module fileurl="file://C:\Users\fukuyama.TAROT\git\FukuymaApplication\FukuyamaApplication.iml" filepath="C:\Users\fukuyama.TAROT\git\FukuymaApplication\FukuyamaApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FukuymaApplication.iml" filepath="$PROJECT_DIR$/FukuymaApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
