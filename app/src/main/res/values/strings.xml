@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Application</string>
+    <string name="message_input_error">入力できません。</string>
 </resources>

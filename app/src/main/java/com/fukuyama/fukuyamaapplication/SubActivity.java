@@ -1,5 +1,6 @@
 package com.fukuyama.fukuyamaapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,8 +15,6 @@ import android.widget.TextView;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.util.Date;
-import java.util.TimerTask;
 
 /**
  * Created by fukuyama on 2017/06/10.
@@ -24,7 +23,40 @@ import java.util.TimerTask;
 public class SubActivity extends AppCompatActivity {
 
     private static final int RESULT_PICK_IMAGEFILE = 1000;
-    private ImageView imageView;
+    private ImageView mImageView;
+
+    //インテントキー：時刻
+    private static final String INTENT_KEY_DATE_TIME = "intent_key_date_time";
+
+    //インテントキー：コメント
+    private static final String INTENT_KEY_COMMENT ="intent_key_comment";
+
+    //インテントキー：数量
+    private static final String INTENT_KEY_QUANTITY = "intent_key_quantity";
+
+    //時刻保持用
+    private String mDateTimeString;
+
+    //コメント保持用
+    private String mComment;
+
+    //数量保持用
+    private int mQuantity;
+
+
+    public static Intent getNewIntent(Activity activity, String dateTime, String comment, int quantity) {
+
+        Intent intent = new Intent(activity, SubActivity.class);
+
+        // 時刻
+        intent.putExtra(INTENT_KEY_DATE_TIME, dateTime);
+        // コメント
+        intent.putExtra(INTENT_KEY_COMMENT, comment);
+        // 数量
+        intent.putExtra(INTENT_KEY_QUANTITY, quantity);
+
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,43 +64,34 @@ public class SubActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sub);
         setTitle("SubActivity");
 
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//    }
-
-
-        imageView = (ImageView) findViewById(R.id.image_view);
+        mImageView = (ImageView) findViewById(R.id.image_view);
 
         Intent intent = getIntent();
+        mDateTimeString = intent.getStringExtra(INTENT_KEY_DATE_TIME);
+        mComment = intent.getStringExtra(INTENT_KEY_COMMENT);
+        mQuantity = intent.getIntExtra(INTENT_KEY_QUANTITY, 0);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("時刻:");
+        sb.append(mDateTimeString).append("\n");
+        sb.append("コメント:");
+        sb.append(mComment).append(("\n"));
+        sb.append("数量:");
+        sb.append(String.valueOf(mQuantity));
+
         //MainActivityから値を受け取る
 //        QuantityInfo info = (QuantityInfo) getIntent().getSerializableExtra("QuantityInfo");
-        int getint = intent.getIntExtra("quantity", 0);
-        CharSequence getstring1 = intent.getCharSequenceExtra("time");
-        CharSequence getstring2 = intent.getCharSequenceExtra("comment");
+//        int getint = intent.getIntExtra("quantity", 0);
+//        CharSequence getstring1 = intent.getCharSequenceExtra("time");
+//        CharSequence getstring2 = intent.getCharSequenceExtra("comment");
 
-        TextView t1 = (TextView) findViewById(R.id.textView5);
-        TextView t2 = (TextView) findViewById(R.id.textView6);
-        TextView t3 = (TextView) findViewById(R.id.textView7);
+        TextView time = (TextView) findViewById(R.id.textView5);
+        TextView comment = (TextView) findViewById(R.id.textView6);
+        TextView quantity = (TextView) findViewById(R.id.textView7);
 
-//        TextView time = (TextView) findViewById(R.id.textView5);
-//        TextView comment = (TextView) findViewById(R.id.textView6);
-//        TextView quantity = (TextView) findViewById(R.id.textView7);
-
-//        //受け取った値を表示
-//        time.setText(info.getTime());
-//        comment.setText(info.getComment());
-//        quantity.setText("" + info.getQuantity());
-
-        t1.setText("受け取った時間は" + getstring1);
-        t2.setText("受け取ったコメントは" + getstring2);
-        t3.setText("受け取った数量は" + String.valueOf(getint));
+        time.setText("受け取った時間は" + mDateTimeString);
+        comment.setText("受け取ったコメントは" + mComment);
+        quantity.setText("受け取った数量は" + String.valueOf(mQuantity));
 
         // ボタン押下後の処理
         Button selectButton = (Button) findViewById(R.id.activity_detail_select_button);
@@ -122,7 +145,7 @@ public class SubActivity extends AppCompatActivity {
 
                     try {
                         Bitmap bmp = getBitmapFromUri(uri);
-                        imageView.setImageBitmap(bmp);
+                        mImageView.setImageBitmap(bmp);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
