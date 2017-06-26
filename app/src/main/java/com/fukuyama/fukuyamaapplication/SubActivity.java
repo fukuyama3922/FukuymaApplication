@@ -20,30 +20,59 @@ import java.io.IOException;
  * Created by fukuyama on 2017/06/10.
  */
 
+/**
+ * サブアクティビティ.
+ */
 public class SubActivity extends AppCompatActivity {
 
-    private static final int RESULT_PICK_IMAGEFILE = 1000;
+    /**
+     *サブアクティビティから呼び出したことを認識するコード.
+     */
+    private static final int REQUEST_CODE_SUBACTIVITY = 1000;
+
+    /**
+     * イメージビュー.
+     */
     private ImageView mImageView;
 
-    //インテントキー：時刻
+    /**
+     * インテントキー：日付.
+     */
     private static final String INTENT_KEY_DATE_TIME = "intent_key_date_time";
 
-    //インテントキー：コメント
+    /**
+     * インテントキー：コメント.
+     */
     private static final String INTENT_KEY_COMMENT ="intent_key_comment";
 
-    //インテントキー：数量
+    /**
+     * インテントキー：数量.
+     */
     private static final String INTENT_KEY_QUANTITY = "intent_key_quantity";
 
-    //時刻保持用
+    /**
+     * 時刻保持用
+     */
     private String mDateTimeString;
 
-    //コメント保持用
+    /**
+     * コメント保持用.
+     */
     private String mComment;
 
-    //数量保持用
+    /**
+     * 数量保持用.
+     */
     private int mQuantity;
 
-
+    /**
+     * インテント生成.
+     * @param activity　{@link Activity}
+     * @param dateTime 時刻
+     * @param comment　コメント
+     * @param quantity　数量
+     * @return　{@link Intent}
+     */
     public static Intent getNewIntent(Activity activity, String dateTime, String comment, int quantity) {
 
         Intent intent = new Intent(activity, SubActivity.class);
@@ -58,6 +87,10 @@ public class SubActivity extends AppCompatActivity {
         return intent;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,11 +134,11 @@ public class SubActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
-                startActivityForResult(intent, RESULT_PICK_IMAGEFILE);
+                startActivityForResult(intent, REQUEST_CODE_SUBACTIVITY);
             }
         });
 
-
+        //リターンボタン押下時の処理
         Button returnButton = (Button) findViewById(R.id.return_button);
         returnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,11 +167,10 @@ public class SubActivity extends AppCompatActivity {
         });
     }
 
-
         // 画像選択、取得
         @Override
         public void onActivityResult ( int requestCode, int resultCode, Intent resultData){
-            if (requestCode == RESULT_PICK_IMAGEFILE && resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_SUBACTIVITY && resultCode == RESULT_OK) {
                 Uri uri = null;
                 if (resultData != null) {
                     uri = resultData.getData();
@@ -154,7 +186,6 @@ public class SubActivity extends AppCompatActivity {
         }
 
         // 画像表示
-
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         ParcelFileDescriptor parcelFileDescriptor =
                 getContentResolver().openFileDescriptor(uri, "r");
@@ -163,7 +194,6 @@ public class SubActivity extends AppCompatActivity {
         parcelFileDescriptor.close();
         return image;
     }
-
 }
 
 

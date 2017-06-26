@@ -22,20 +22,34 @@ import java.util.TimerTask;
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
+    /**
+     * ログ出力用のタグ.
+     */
     private static final String TAG = MainActivity.class.getName();
 
-    //数量：最大.
+    /**
+     * 数量の上限.
+     */
     private static final int QUANTITY_MAX = 9999;
 
-    //数量；最小.
+    /**
+     * 数量の下限.
+     */
     private static final int QUANTITY_MIN = 0;
 
-    //加算，減算される値.
+    /**
+     * 加算減算される値.
+     */
     private static final int QUANTITY_ADD = 1;
 
-    //初期値.
+    /**
+     * 表示される初期値.
+     */
     private int quantity = QUANTITY_MIN;
 
+    /**
+     * 数量、コメント、時刻情報.
+     */
     private ArrayList<QuantityInfo> mList = new ArrayList<>();
 
     /**
@@ -47,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TimerTask mTimerTask = null;
     /**
-     * 数量情報リストアダプタ保持用
+     * 数量情報リストアダプタ保持用.
      */
     private QuantityInfoAdapter mAdapter = null;
 
@@ -55,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * {@inheritDoc}
-     *
-     * @param savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        //バックグラウンドでの時刻表示の廃止
+        //バックグラウンドでの時刻表示の廃止.
         mTimerTask.cancel();
     }
 
@@ -106,26 +118,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initView() {
 
-        //初期表示される数量
+        //初期表示される数量.
         updateQuantityText(quantity);
 
-        //数量表示
+        //数量表示.
         TextView quantityTextView = (TextView) findViewById(R.id.textview_quantity);
         quantityTextView.setText("" + quantity);
 
-        //プラスボタンの設定
+        //プラスボタンの設定.
         final Button plusButton = (Button) findViewById(R.id.button_plus);
         plusButton.setOnClickListener(this);
-        //マイナスボタンの設定
+        //マイナスボタンの設定.
         final Button minusButton = (Button) findViewById(R.id.button_minus);
         minusButton.setOnClickListener(this);
-        //追加ボタンの設定
+        //追加ボタンの設定.
         final Button addButton = (Button) findViewById(R.id.button_add);
         addButton.setOnClickListener(this);
-        //送信ボタンの設定
+        //送信ボタンの設定.
         final Button sendButton = (Button) findViewById(R.id.button_send);
         sendButton.setOnClickListener(this);
-        //クリアボタンの設定
+        //クリアボタンの設定.
         final Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(this);
 
@@ -140,35 +152,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * {@inheritDoc}
-     *
-     * @param view
      */
     @Override
     public void onClick(View view) {
 
         switch (view.getId()) {
             case R.id.button_plus:
-                //プラスボタン押下時の処理
+                //プラスボタン押下時の処理.
                 culcQuantityPlus();
                 return;
 
             case R.id.button_minus:
-                //マイナスボタン押下時の処理
+                //マイナスボタン押下時の処理.
                 culcQuantityMinus();
                 return;
 
             case R.id.button_add:
-                // 追加ボタン押下時の処理
+                // 追加ボタン押下時の処理.
                 addQuantityInfo();
                 return;
 
             case R.id.button_clear:
-                // クリアボタン押下時の処理
+                // クリアボタン押下時の処理.
                 clearList();
                 return;
 
             case R.id.button_send:
-                //送信ボタン押下時の処理
+                //送信ボタン押下時の処理.
                 send();
                 return;
 
@@ -178,39 +188,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 数量が以下の場合数量を加算する
+     * 数量が以下の場合数量を加算する.
      */
     private void culcQuantityPlus() {
-        //上限の場合、警告を表示して処理を抜ける
+        //上限の場合、警告を表示して処理を抜ける.
         if (quantity >= QUANTITY_MAX) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
-        //textviewに表示する
+        //textviewに表示する.
         quantity += QUANTITY_ADD;
         updateQuantityText(quantity);
     }
 
 
     /**
-     * 数量が以下の場合数量を減算する
+     * 数量が以下の場合数量を減算する.
      */
     private void culcQuantityMinus() {
-        //下限の場合、警告を表示して処理を抜ける
+        //下限の場合、警告を表示して処理を抜ける.
         if (quantity <= QUANTITY_MIN) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
-        //textviewに表示する
+        //textviewに表示する.
         quantity -= QUANTITY_ADD;
-        //textviewに表示する
+        //textviewに表示する.
         updateQuantityText(quantity);
     }
 
     /**
-     * リストを一件追加する
+     * リストを一件追加する.
      */
     private void addQuantityInfo() {
         QuantityInfo quantityInfo = new QuantityInfo();
@@ -223,16 +233,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * リストをクリアする
+     * リストをクリアする.
      */
     private void clearList() {
         mList.clear();
-        // リストの表示更新
+        // リストの表示更新.
         mAdapter.notifyDataSetChanged();
     }
 
     /**
-     * 詳細画面を呼び出し、時刻、コメント、数量の情報を受け渡す
+     * 詳細画面を呼び出し、時刻、コメント、数量の情報を受け渡す.
      */
     public void send() {
         Intent intent = SubActivity.getNewIntent(
@@ -240,17 +250,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 getDate(),
                 getComment(),
                 quantity);
-
+//        int requestCode = RESULT_SUBACTIVITY;
+//        startActivityForResult( intent, requestCode );
         startActivity(intent);
     }
 
+    protected void onActivityResult( int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        }
+
+
     /**
      * {@inheritDoc}
-     *
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -305,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    }
 
     /**
-     * 編集した時刻を取得
+     * 編集した時刻を取得.
      *
      * @return
      */
@@ -315,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 編集したコメントを取得
+     * 編集したコメントを取得.
      *
      * @return
      */
@@ -325,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 数量の表示を更新する
+     * 数量の表示を更新する.
      *
      * @param quantity 　数量
      */
