@@ -1,12 +1,13 @@
 package com.fukuyama.fukuyamaapplication;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +68,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final SimpleDateFormat mFormatter = new SimpleDateFormat("HH:MM:ss.");
 
+    private ImageView mImageViewMain;
+
+    static final int RESULT_SUBACTIVITY = 1000;
+
+
+
     /**
      * {@inheritDoc}
      */
@@ -87,6 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+
+        TextView resultData = (TextView) findViewById(R.id.text_result);
+
+        mImageViewMain = (ImageView) findViewById(R.id.imageView3);
+
 
         mTimerTask = new TimerTask() {
             @Override
@@ -140,6 +152,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //クリアボタンの設定.
         final Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(this);
+// 選択された合計数量ボタン
+        final Button selectButton = (Button) findViewById(R.id.select_button);
+        selectButton.setOnClickListener(this);
 
         mTimerTextView = (TextView) findViewById(R.id.textview_time);
 
@@ -148,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter.setmQuantityInfoList(mList);
         quantityInfoListView.setAdapter(mAdapter);
         quantityInfoListView.setOnItemClickListener(this);
+
     }
 
     /**
@@ -180,6 +196,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button_send:
                 //送信ボタン押下時の処理.
                 send();
+                return;
+
+            case R.id.select_button:
+                // 選択された合計数量ボタンを押下された場合
+                // 合計数量を計算し表示
+                selectList();
                 return;
 
             default:
@@ -247,29 +269,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void send() {
         Intent intent = SubActivity.getNewIntent(
                 this,
+                getResultdata(),
                 getDate(),
                 getComment(),
                 quantity);
-//        int requestCode = RESULT_SUBACTIVITY;
-//        startActivityForResult( intent, requestCode );
-        startActivity(intent);
+        startActivityForResult(intent, RESULT_SUBACTIVITY);
     }
 
-    protected void onActivityResult( int requestCode, int resultCode, Intent intent) {
+    // 選択された合計数量ボタン押下後の処理
+    private void selectList() {
+        int sum = 0;
+
+        for (QuantityInfo info : mList) {
+            // チェックボックスにチェックが入っている場合
+            if (info.isSelected()) {
+                // 数量を加算する
+                sum += info.mQuantity;
+            }
+        }
+        // トーストに結果表示
+        String viewQuantity = String.valueOf(sum);
+        Toast.makeText(MainActivity.this, viewQuantity, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onActivityResult( int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
+        switch (requestCode) {
+            case RESULT_SUBACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    TextView resultData = (TextView) findViewById(R.id.text_result);
+                    resultData.setText(intent.getStringExtra("intent-key"));
+
+//                        Bitmap bmp = (Bitmap) intent.getParcelableExtra("intent-key2");
+//                        mImageViewMain.setImageBitmap(bmp);
+//                    mImageViewMain.setImageBitmap(bitmap1);
+                    }
+
+
+
+                }
         }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        QuantityInfo info = mList.get(position);
-        info.setSelected(!info.isSelected());
-        mAdapter.notifyDataSetChanged();
-    }
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onItemClick (AdapterView < ? > parent, View view,int position, long id){
+            QuantityInfo info = mList.get(position);
+            info.setSelected(!info.isSelected());
+            mAdapter.notifyDataSetChanged();
 
+        }
+
+//    Intent intent = this.getIntent();
+//    Bundle bundle = intent.getExtras();
+//    Bitmap bitmap = (Bitmap)bundle.get("intent-key");
+//    ImageView mImageViewMain = new ImageView(this);
+//        mImageViewMain.setImageBitmap(bitmap);
 //    protected void onActivityResult( int requestCode, int resultCode, Intent intent) {
 //        super.onActivityResult(requestCode, resultCode, intent);
 //
@@ -343,6 +402,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateQuantityText(int quantity) {
         TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
         textViewQuantity.setText(String.valueOf(quantity));
+    }
+
+    private String getResultdata() {
+        TextView resultData = (TextView) findViewById(R.id.text_result);
+        return resultData.getText().toString();
     }
 }
 

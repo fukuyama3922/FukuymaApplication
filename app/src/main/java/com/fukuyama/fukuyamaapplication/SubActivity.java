@@ -10,6 +10,7 @@ import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,6 +36,12 @@ public class SubActivity extends AppCompatActivity {
      */
     private ImageView mImageView;
 
+/**
+ * インテントキー:resultData.
+ *
+ */
+private static final String INTENT_KEY_RESULTDATA = "intent_key_resultsata";
+
     /**
      * インテントキー：日付.
      */
@@ -49,6 +56,11 @@ public class SubActivity extends AppCompatActivity {
      * インテントキー：数量.
      */
     private static final String INTENT_KEY_QUANTITY = "intent_key_quantity";
+
+    /**
+     * resultData保持用
+     */
+    private String mResultData;
 
     /**
      * 時刻保持用
@@ -73,10 +85,12 @@ public class SubActivity extends AppCompatActivity {
      * @param quantity　数量
      * @return　{@link Intent}
      */
-    public static Intent getNewIntent(Activity activity, String dateTime, String comment, int quantity) {
+    public static Intent getNewIntent(Activity activity, String resultData, String dateTime, String comment, int quantity) {
 
         Intent intent = new Intent(activity, SubActivity.class);
 
+        //resultData
+        intent.putExtra(INTENT_KEY_RESULTDATA, resultData);
         // 時刻
         intent.putExtra(INTENT_KEY_DATE_TIME, dateTime);
         // コメント
@@ -100,11 +114,14 @@ public class SubActivity extends AppCompatActivity {
         mImageView = (ImageView) findViewById(R.id.image_view);
 
         Intent intent = getIntent();
+        mResultData = intent.getStringExtra(INTENT_KEY_RESULTDATA);
         mDateTimeString = intent.getStringExtra(INTENT_KEY_DATE_TIME);
         mComment = intent.getStringExtra(INTENT_KEY_COMMENT);
         mQuantity = intent.getIntExtra(INTENT_KEY_QUANTITY, 0);
 
         StringBuilder sb = new StringBuilder();
+        sb.append("resultData");
+        sb.append(mResultData).append("\n");
         sb.append("時刻:");
         sb.append(mDateTimeString).append("\n");
         sb.append("コメント:");
@@ -118,10 +135,12 @@ public class SubActivity extends AppCompatActivity {
 //        CharSequence getstring1 = intent.getCharSequenceExtra("time");
 //        CharSequence getstring2 = intent.getCharSequenceExtra("comment");
 
+        EditText edit1 = (EditText)findViewById(R.id.editText);
         TextView time = (TextView) findViewById(R.id.textView5);
         TextView comment = (TextView) findViewById(R.id.textView6);
         TextView quantity = (TextView) findViewById(R.id.textView7);
 
+        edit1.setText(mResultData);
         time.setText("受け取った時間は" + mDateTimeString);
         comment.setText("受け取ったコメントは" + mComment);
         quantity.setText("受け取った数量は" + String.valueOf(mQuantity));
@@ -138,31 +157,32 @@ public class SubActivity extends AppCompatActivity {
             }
         });
 
+
         //リターンボタン押下時の処理
         Button returnButton = (Button) findViewById(R.id.return_button);
         returnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Intent intent = new Intent(getApplication(), MainActivity.class);
-//                intent.setType("image/*");
-//                startActivityForResult(intent);
-//                Intent intent = new Intent();
+
 //                intent.putExtra();
 
+                Intent intent = new Intent();
+                EditText edit1 = (EditText)findViewById(R.id.editText);
 
+//                intent.putExtra("intent-key2", edit.getText().toString());
+                intent.putExtra("intent-key", edit1.getText().toString());
 
-                    // finish() で終わらせて
-                    // Intent data を送る
-                    finish();
-
+                setResult(RESULT_OK, intent);
+                // finish() で終わらせて
+                // Intent data を送る
+                finish();
 
 //            Intent intent = new Intent(SubActivity.this, MainActivity.class);
 //                startActivity(intent);
 //                onPause();
 //                Intent intent = new Intent(SubActivity.this, MainActivity.class);
 //                startActivity(intent);
-
-
             }
         });
     }
@@ -176,8 +196,16 @@ public class SubActivity extends AppCompatActivity {
                     uri = resultData.getData();
 
                     try {
-                        Bitmap bmp = getBitmapFromUri(uri);
-                        mImageView.setImageBitmap(bmp);
+                        Bitmap bitmap1 = getBitmapFromUri(uri);
+
+                        mImageView.setImageBitmap(bitmap1);
+//                        Intent intent = new Intent();
+//
+//                        intent.putExtra("intent-key2",bitmap1);
+//
+//                        setResult(RESULT_OK, intent);
+//
+//                        finish();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -186,6 +214,7 @@ public class SubActivity extends AppCompatActivity {
         }
 
         // 画像表示
+
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         ParcelFileDescriptor parcelFileDescriptor =
                 getContentResolver().openFileDescriptor(uri, "r");
@@ -193,8 +222,10 @@ public class SubActivity extends AppCompatActivity {
         Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
         parcelFileDescriptor.close();
         return image;
+
     }
 }
+
 
 
 
