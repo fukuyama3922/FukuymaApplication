@@ -7,26 +7,27 @@ import java.io.Serializable;
  */
 
 public class QuantityInfo implements Serializable {
-    private int quantity;
-    private String time;
-    private String comment;
-    private boolean isSelected;
+       public int mQuantity;
+    private String mTime;
+    private String mComment;
+    private boolean mIsSelected;
 
     public boolean isSelected() {
-        return isSelected;
+        return mIsSelected;
     }
+
 
     public void setSelected(boolean selected) {
-        isSelected = selected;
+        mIsSelected = selected;
     }
 
 
-public int getQuantity() { return quantity; }
-public void setQuantity(int quantity) { this.quantity = quantity; }
-public String getTime() { return time; }
-public void setTime(String time) { this.time = time; }
-public String getComment() { return comment; }
-public void setComment(String comment) { this.comment = comment; }
+public int getmQuantity() { return mQuantity; }
+public void setmQuantity(int mQuantity) { this.mQuantity = mQuantity; }
+public String getmTime() { return mTime; }
+public void setmTime(String mTime) { this.mTime = mTime; }
+public String getmComment() { return mComment; }
+public void setmComment(String mComment) { this.mComment = mComment; }
 
 
 

@@ -14,42 +14,42 @@ import java.util.ArrayList;
 
 public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickListener{
 
-    private LayoutInflater layoutInflater = null;
-    private ArrayList<QuantityInfo> quantityInfoList;
-    private Context context;
+    private LayoutInflater mLayoutInflater = null;
+    private ArrayList<QuantityInfo> mQuantityInfoList;
+    private Context mContext;
 
     public QuantityInfoAdapter(Context context) {
-        this.context = context;
-        this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mContext = context;
+        this.mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void setQuantityInfoList(ArrayList<QuantityInfo> quantityInfoList) {
-        this.quantityInfoList = quantityInfoList;
+    public void setmQuantityInfoList(ArrayList<QuantityInfo> mQuantityInfoList) {
+        this.mQuantityInfoList = mQuantityInfoList;
     }
 
     @Override
     public int getCount() {
-        return quantityInfoList.size();
+        return mQuantityInfoList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return quantityInfoList.get(position);
+        return mQuantityInfoList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return quantityInfoList.get(position).hashCode();
+        return mQuantityInfoList.get(position).hashCode();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.row_quantity_info, parent, false);
+            convertView = mLayoutInflater.inflate(R.layout.row_quantity_info, parent, false);
         }
 
-        QuantityInfo info = quantityInfoList.get(position);
+        QuantityInfo info = mQuantityInfoList.get(position);
         
         // 行が選択されていたら
         if (info.isSelected()) {
@@ -76,10 +76,10 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         deleteButton.setTag(position);
 
         ((CheckBox) convertView.findViewById(R.id.chk_select)).setChecked(info.isSelected());
-        ((TextView) convertView.findViewById(R.id.textview_time)).setText(info.getTime());
+        ((TextView) convertView.findViewById(R.id.textview_time)).setText(info.getmTime());
 
-        ((TextView) convertView.findViewById(R.id.textview_quantity)).setText("" + info.getQuantity());
-        ((TextView) convertView.findViewById(R.id.textview_comment)).setText(info.getComment());
+        ((TextView) convertView.findViewById(R.id.textview_quantity)).setText("" + info.getmQuantity());
+        ((TextView) convertView.findViewById(R.id.textview_comment)).setText(info.getmComment());
 
         return convertView;
     }
@@ -90,7 +90,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
 
         // リストの中から選択したinfoを削除
         int position = Integer.valueOf(v.getTag().toString()).intValue();
-        quantityInfoList.remove(position);
+        mQuantityInfoList.remove(position);
         // listViewの表示更新
         notifyDataSetChanged();
 

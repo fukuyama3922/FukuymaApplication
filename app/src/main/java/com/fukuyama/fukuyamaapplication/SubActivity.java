@@ -157,7 +157,6 @@ private static final String INTENT_KEY_RESULTDATA = "intent_key_resultsata";
             }
         });
 
-
         //リターンボタン押下時の処理
         Button returnButton = (Button) findViewById(R.id.return_button);
         returnButton.setOnClickListener(new View.OnClickListener() {

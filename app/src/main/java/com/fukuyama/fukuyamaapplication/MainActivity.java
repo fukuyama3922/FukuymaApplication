@@ -306,9 +306,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                        mImageViewMain.setImageBitmap(bmp);
 //                    mImageViewMain.setImageBitmap(bitmap1);
                     }
-
-
-
                 }
         }
 
