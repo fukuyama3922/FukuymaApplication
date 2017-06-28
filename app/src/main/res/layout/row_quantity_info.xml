@@ -6,7 +6,8 @@
     android:layout_weight="1"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    tools:orientation="horizontal">
+    tools:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,20 +37,39 @@
             android:text="TextView" />
 
         <TextView
-            android:id="@+id/textview_comment"
+            android:id="@+id/textview_detaile_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="TextView" />
-
-        <Button
-            android:id="@+id/button_delete"
-            android:layout_width="53dp"
+        <!--- <test pattern="SECAM" />
+                <Button
+                    android:id="@+id/button_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="send"
+                    android:focusableInTouchMode="false"
+                    android:focusable="false"
+                    />
+<test pattern="NTSC" /> -->
+        <TextView
+            android:id="@+id/textView_detaile_result"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:text="削除" />
+            android:text="TextView" />
+
+        <Button
+                    android:id="@+id/button_delete"
+                    android:layout_width="53dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="削除"
+                    android:focusableInTouchMode="false"
+                    android:focusable="false"/>
 
 
-    </LinearLayout>
+            </LinearLayout>
 
-</LinearLayout>
+        </LinearLayout>

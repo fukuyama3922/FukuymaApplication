@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //viewの初期化
         initView();
     }
@@ -299,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (requestCode) {
             case RESULT_SUBACTIVITY:
                 if (resultCode == RESULT_OK) {
-                    TextView resultData = (TextView) findViewById(R.id.text_result);
+                    TextView resultData = (TextView) findViewById(R.id.textView_detaile_result);
                     resultData.setText(intent.getStringExtra("intent-key"));
 
 //                        Bitmap bmp = (Bitmap) intent.getParcelableExtra("intent-key2");
@@ -317,6 +318,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onItemClick (AdapterView < ? > parent, View view,int position, long id){
             QuantityInfo info = mList.get(position);
             info.setSelected(!info.isSelected());
+//            Intent intent = new Intent(this.getApplicationContext(), SubActivity.class);
+//            startActivity(intent);
+            Intent intent = SubActivity.getNewIntent(
+                    this,
+                    getDetaileResultdata(),
+                    getDate(),
+                    getComment(),
+                    quantity);
+            startActivityForResult(intent, RESULT_SUBACTIVITY);
             mAdapter.notifyDataSetChanged();
 
         }
@@ -404,6 +414,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String getResultdata() {
         TextView resultData = (TextView) findViewById(R.id.text_result);
         return resultData.getText().toString();
+    }
+
+    private String getDetaileResultdata() {
+        TextView detaileResultData = (TextView) findViewById(R.id.textView_detaile_result);
+        return detaileResultData.getText().toString();
     }
 }
 

@@ -86,7 +86,7 @@ private static final String INTENT_KEY_RESULTDATA = "intent_key_resultsata";
      * @return　{@link Intent}
      */
     public static Intent getNewIntent(Activity activity, String resultData, String dateTime, String comment, int quantity) {
-
+        //intent
         Intent intent = new Intent(activity, SubActivity.class);
 
         //resultData
