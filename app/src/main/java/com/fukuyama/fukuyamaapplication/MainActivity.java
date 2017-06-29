@@ -21,7 +21,7 @@ import java.util.TimerTask;
 /**
  * メインアクティビティ.
  */
-public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
 
     /**
      * ログ出力用のタグ.
@@ -154,15 +154,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    @Override
+    // ビュー押下後の処理　後ほど削除
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        QuantityInfo quantityInfo = mList.get(position);
+        quantityInfo.setEditIndex(position);
+    }
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         QuantityInfo quantityInfo = mList.get(position);
-        quantityInfo.setEditIndex(position);
         Intent intent = SubActivity.getNewIntent(this, quantityInfo);
         startActivityForResult(intent, RESULT_CODE_SUB_ACTIVITY);
+        return true;
     }
 
     /**
@@ -201,6 +207,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mAdapter.setQuantityInfoList(mList);
         quantityInfoListView.setAdapter(mAdapter);
         quantityInfoListView.setOnItemClickListener(this);
+        quantityInfoListView.setOnItemLongClickListener(this);
 
     }
 
@@ -232,11 +239,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 return;
 
             //TODO:選択された合計数量ボタン
-//            case R.id.select_button:
-//                // 選択された合計数量ボタンを押下された場合
-//                // 合計数量を計算し表示
-//                selectList();
-//                return;
+            case R.id.select_button:
+                // 選択された合計数量ボタンを押下された場合
+                // 合計数量を計算し表示
+                selectList();
+                return;
 
             default:
                 return;
@@ -303,7 +310,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
 
-    // 選択された合計数量ボタン押下後の処理
+    // TODO:合計数量ボタン押下後の処理
     private void selectList() {
         int sum = 0;
 
@@ -317,6 +324,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // トーストに結果表示
         String viewQuantity = String.valueOf(sum);
         Toast.makeText(MainActivity.this, viewQuantity, Toast.LENGTH_SHORT).show();
+
+
     }
 
     /**
@@ -356,6 +365,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         return bmp;
     }
+
+
 }
 
 
