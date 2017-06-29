@@ -1,91 +1,102 @@
 package com.fukuyama.fukuyamaapplication;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.view.View.OnClickListener;
-import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
-import static com.fukuyama.fukuyamaapplication.MainActivity.RESULT_SUBACTIVITY;
-
 public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickListener {
 
+    /**
+     * {@link LayoutInflater}
+     */
     private LayoutInflater mLayoutInflater = null;
+
+    /**
+     * 数量情報リスト.
+     */
     private ArrayList<QuantityInfo> mQuantityInfoList;
+
+    /**
+     * {@link Context}
+     */
     private Context mContext;
 
 
+    /**
+     * コンストラクタ.
+     *
+     * @param context {@link Context}
+     */
     public QuantityInfoAdapter(Context context) {
-        this.mContext = context;
-        this.mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void setmQuantityInfoList(ArrayList<QuantityInfo> mQuantityInfoList) {
-        this.mQuantityInfoList = mQuantityInfoList;
+    /**
+     * 数量情報をアダプタにセットする.
+     *
+     * @param quantityInfoList
+     */
+    public void setQuantityInfoList(ArrayList<QuantityInfo> quantityInfoList) {
+        mQuantityInfoList = quantityInfoList;
     }
 
-
-
-
-//    @Override
-//    public int getmAdapterQuantity() {
-//        return mQuantityInfoList.getmQuantity();
-//    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getCount() {
         return mQuantityInfoList.size();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Object getItem(int position) {
+    public QuantityInfo getItem(int position) {
         return mQuantityInfoList.get(position);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getItemId(int position) {
         return mQuantityInfoList.get(position).hashCode();
     }
 
-
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_delete:
                 //削除ボタン押下時の処理.
+
                 int position = Integer.valueOf(v.getTag().toString()).intValue();
                 mQuantityInfoList.remove(position);
+
                 // listViewの表示更新
                 notifyDataSetChanged();
 
                 return;
 
-//            case R.id.button_send:
-//                Intent intent = SubActivity.getNewIntent(
-//                this,
-//                        getCount(),
-//                        info.getmQuantity(),
-//                        mQuantity(),
-//                getDate(),
-//                getComment(),
-//                quantity);
-//        startActivityForResult(intent, RESULT_SUBACTIVITY);
-//                return;
-
-
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -93,7 +104,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
             convertView = mLayoutInflater.inflate(R.layout.row_quantity_info, parent, false);
         }
 
-        QuantityInfo info = mQuantityInfoList.get(position);
+        QuantityInfo info = getItem(position);
 
         // 行が選択されていたら
         if (info.isSelected()) {
@@ -119,63 +130,17 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         deleteButton.setOnClickListener(this);
         deleteButton.setTag(position);
 
-//        Button sendButton = (Button) convertView.findViewById(R.id.button_send);
-//        sendButton.setOnClickListener(this);
-//        sendButton.setTag(position);
+        ((CheckBox) convertView.findViewById(R.id.check_select)).setChecked(info.isSelected());
+        ((TextView) convertView.findViewById(R.id.text_time)).setText(info.getTime());
 
-        ((CheckBox) convertView.findViewById(R.id.chk_select)).setChecked(info.isSelected());
-        ((TextView) convertView.findViewById(R.id.textview_time)).setText(info.getmTime());
+        ((TextView) convertView.findViewById(R.id.text_quantity)).setText("" + info.getQuantity());
+        ((TextView) convertView.findViewById(R.id.text_comment)).setText(info.getComment());
 
-        ((TextView) convertView.findViewById(R.id.textview_quantity)).setText("" + info.getmQuantity());
-        ((TextView) convertView.findViewById(R.id.textview_detaile_comment)).setText(info.getmComment());
-
-
-
+//        ビットマップ表示領域にビットマップをセット
+        if (info.getBitmap() != null) {
+            ((ImageView) convertView.findViewById(R.id.image_bitmap_container)).setImageBitmap(info.getBitmap());
+        }
 
         return convertView;
-
-
-    }
-
-//    @Override
-//    // 削除ボタン押下後の処理
-//    public void onClick(View v) {
-//
-//
-//        switch (view.getId()) {
-//            case R.id.button_delete:
-//                //削除ボタン押下時の処理.
-//                int position = Integer.valueOf(v.getTag().toString()).intValue();
-//                mQuantityInfoList.remove(position);
-//                // listViewの表示更新
-//                notifyDataSetChanged();
-//                delete();
-//                return;
-//
-//            default:
-//                return;
-//        }
-//    }
-
-
-//    public void delete() {
-//        // リストの中から選択したinfoを削除
-//        int position = Integer.valueOf(v.getTag().toString()).intValue();
-//        mQuantityInfoList.remove(position);
-//        // listViewの表示更新
-//        notifyDataSetChanged();
-//
-//    }
-
-//    public void send() {
-//        Intent intent = SubActivity.getNewIntent(
-//                this,
-//                getResultdata(),
-//                getDate(),
-//                getComment(),
-//                quantity);
-//        startActivityForResult(intent, RESULT_SUBACTIVITY);
-//    }
-
-
+            }
 }

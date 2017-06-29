@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Application</string>
+
+    <!-- ラベル -->
+    <string name="label_delete">削除</string>
+
+    <!-- メッセージ -->
     <string name="message_input_error">入力できません。</string>
+
 </resources>

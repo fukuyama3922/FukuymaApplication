@@ -1,13 +1,13 @@
 package com.fukuyama.fukuyamaapplication;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,12 +21,18 @@ import java.util.TimerTask;
 /**
  * メインアクティビティ.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     /**
      * ログ出力用のタグ.
      */
     private static final String TAG = MainActivity.class.getName();
+
+    // TODO:定数クラスなどにまとめるべき
+    /**
+     * {@link SubActivity}が破棄された時に送付される識別子.
+     */
+    static final int RESULT_CODE_SUB_ACTIVITY = 1000;
 
     /**
      * 数量の上限.
@@ -46,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 表示される初期値.
      */
-    private int quantity = QUANTITY_MIN;
+    private int mQuantity = QUANTITY_MIN;
 
     /**
      * 数量、コメント、時刻情報.
@@ -58,21 +64,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private Timer mTimer = new Timer();
 
+    /**
+     * 時刻表示欄.
+     */
     private TextView mTimerTextView = null;
 
+    /**
+     * {@link TimerTask}
+     */
     private TimerTask mTimerTask = null;
+
     /**
      * 数量情報リストアダプタ保持用.
      */
     private QuantityInfoAdapter mAdapter = null;
 
+    /**
+     * 時刻フォーマット(HH:MM:ss.)
+     */
     private final SimpleDateFormat mFormatter = new SimpleDateFormat("HH:MM:ss.");
-
-    private ImageView mImageViewMain;
-
-    static final int RESULT_SUBACTIVITY = 1000;
-
-
 
     /**
      * {@inheritDoc}
@@ -82,12 +92,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //viewの初期化
         initView();
     }
-
-    //initView
 
     /**
      * {@inheritDoc}
@@ -96,15 +103,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
 
-        TextView resultData = (TextView) findViewById(R.id.text_result);
-
-        mImageViewMain = (ImageView) findViewById(R.id.imageView3);
-
-
         mTimerTask = new TimerTask() {
+
+            /**
+             * {@inheritDoc}
+             */
             @Override
             public void run() {
                 runOnUiThread(new Runnable() {
+
+                    /**
+                     * {@inheritDoc}
+                     */
                     @Override
                     public void run() {
                         //現在時刻の表示
@@ -127,16 +137,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        switch (requestCode) {
+            case RESULT_CODE_SUB_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+
+                    QuantityInfo quantityInfo = (QuantityInfo) intent.getSerializableExtra("intent-key");
+                    mList.get(quantityInfo.getEditIndex()).setBitmap(quantityInfo.getBitmap());
+                    mAdapter.notifyDataSetChanged();
+                }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        QuantityInfo quantityInfo = mList.get(position);
+        quantityInfo.setEditIndex(position);
+        Intent intent = SubActivity.getNewIntent(this, quantityInfo);
+        startActivityForResult(intent, RESULT_CODE_SUB_ACTIVITY);
+    }
+
+    /**
      * initView
      */
     private void initView() {
 
         //初期表示される数量.
-        updateQuantityText(quantity);
+        updateQuantityText(mQuantity);
 
         //数量表示.
-        TextView quantityTextView = (TextView) findViewById(R.id.textview_quantity);
-        quantityTextView.setText("" + quantity);
+        TextView quantityTextView = (TextView) findViewById(R.id.text_quantity);
+        quantityTextView.setText("" + mQuantity);
 
         //プラスボタンの設定.
         final Button plusButton = (Button) findViewById(R.id.button_plus);
@@ -147,21 +186,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //追加ボタンの設定.
         final Button addButton = (Button) findViewById(R.id.button_add);
         addButton.setOnClickListener(this);
-        //送信ボタンの設定.
-        final Button sendButton = (Button) findViewById(R.id.button_send);
-        sendButton.setOnClickListener(this);
+
         //クリアボタンの設定.
         final Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(this);
-// 選択された合計数量ボタン
+        // TODO:選択された合計数量ボタン
         final Button selectButton = (Button) findViewById(R.id.select_button);
         selectButton.setOnClickListener(this);
 
-        mTimerTextView = (TextView) findViewById(R.id.textview_time);
+        mTimerTextView = (TextView) findViewById(R.id.text_time);
 
         ListView quantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
         mAdapter = new QuantityInfoAdapter(MainActivity.this);
-        mAdapter.setmQuantityInfoList(mList);
+        mAdapter.setQuantityInfoList(mList);
         quantityInfoListView.setAdapter(mAdapter);
         quantityInfoListView.setOnItemClickListener(this);
 
@@ -194,16 +231,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 clearList();
                 return;
 
-            case R.id.button_send:
-                //送信ボタン押下時の処理.
-                send();
-                return;
-
-            case R.id.select_button:
-                // 選択された合計数量ボタンを押下された場合
-                // 合計数量を計算し表示
-                selectList();
-                return;
+            //TODO:選択された合計数量ボタン
+//            case R.id.select_button:
+//                // 選択された合計数量ボタンを押下された場合
+//                // 合計数量を計算し表示
+//                selectList();
+//                return;
 
             default:
                 return;
@@ -215,43 +248,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void culcQuantityPlus() {
         //上限の場合、警告を表示して処理を抜ける.
-        if (quantity >= QUANTITY_MAX) {
+        if (mQuantity >= QUANTITY_MAX) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
         //textviewに表示する.
-        quantity += QUANTITY_ADD;
-        updateQuantityText(quantity);
+        mQuantity += QUANTITY_ADD;
+        updateQuantityText(mQuantity);
     }
-
 
     /**
      * 数量が以下の場合数量を減算する.
      */
     private void culcQuantityMinus() {
         //下限の場合、警告を表示して処理を抜ける.
-        if (quantity <= QUANTITY_MIN) {
+        if (mQuantity <= QUANTITY_MIN) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
         //textviewに表示する.
-        quantity -= QUANTITY_ADD;
+        mQuantity -= QUANTITY_ADD;
         //textviewに表示する.
-        updateQuantityText(quantity);
+        updateQuantityText(mQuantity);
     }
 
     /**
      * リストを一件追加する.
      */
     private void addQuantityInfo() {
-        QuantityInfo quantityInfo = new QuantityInfo();
-        quantityInfo.setmTime(getDate());
-        quantityInfo.setmComment(getComment());
-        quantityInfo.setmQuantity(quantity);
+
+        QuantityInfo quantityInfo = new QuantityInfo(
+                mQuantity,
+                getDate(),
+                getComment()
+        );
+
+        quantityInfo.setBitmap(getBitmap());
+
+
+        //リストの表示更新
         mList.add(quantityInfo);
-//        //リストの表示更新
         mAdapter.notifyDataSetChanged();
     }
 
@@ -259,22 +297,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * リストをクリアする.
      */
     private void clearList() {
+        // リストの表示更新
         mList.clear();
-        // リストの表示更新.
         mAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * 詳細画面を呼び出し、時刻、コメント、数量の情報を受け渡す.
-     */
-    public void send() {
-        Intent intent = SubActivity.getNewIntent(
-                this,
-                getResultdata(),
-                getDate(),
-                getComment(),
-                quantity);
-        startActivityForResult(intent, RESULT_SUBACTIVITY);
     }
 
     // 選択された合計数量ボタン押下後の処理
@@ -285,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // チェックボックスにチェックが入っている場合
             if (info.isSelected()) {
                 // 数量を加算する
-                sum += info.mQuantity;
+                sum += info.getQuantity();
             }
         }
         // トーストに結果表示
@@ -293,101 +318,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(MainActivity.this, viewQuantity, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onActivityResult( int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        switch (requestCode) {
-            case RESULT_SUBACTIVITY:
-                if (resultCode == RESULT_OK) {
-                    TextView resultData = (TextView) findViewById(R.id.textView_detaile_result);
-                    resultData.setText(intent.getStringExtra("intent-key"));
-
-//                        Bitmap bmp = (Bitmap) intent.getParcelableExtra("intent-key2");
-//                        mImageViewMain.setImageBitmap(bmp);
-//                    mImageViewMain.setImageBitmap(bitmap1);
-                    }
-                }
-        }
-
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onItemClick (AdapterView < ? > parent, View view,int position, long id){
-            QuantityInfo info = mList.get(position);
-            info.setSelected(!info.isSelected());
-//            Intent intent = new Intent(this.getApplicationContext(), SubActivity.class);
-//            startActivity(intent);
-            Intent intent = SubActivity.getNewIntent(
-                    this,
-                    getDetaileResultdata(),
-                    getDate(),
-                    getComment(),
-                    quantity);
-            startActivityForResult(intent, RESULT_SUBACTIVITY);
-            mAdapter.notifyDataSetChanged();
-
-        }
-
-//    Intent intent = this.getIntent();
-//    Bundle bundle = intent.getExtras();
-//    Bitmap bitmap = (Bitmap)bundle.get("intent-key");
-//    ImageView mImageViewMain = new ImageView(this);
-//        mImageViewMain.setImageBitmap(bitmap);
-//    protected void onActivityResult( int requestCode, int resultCode, Intent intent) {
-//        super.onActivityResult(requestCode, resultCode, intent);
-//
-//        if(resultCode == RESULT_OK && requestCode == RESULT_SUBACTIVITY && null != intent) {
-//            int res = intent.getIntExtra("RESULT", 0);
-//            String message = intent.getStringExtra("Message");
-//            resultData.setText(message +" ... Result = "+String.valueOf(res));
-//        }
-//    }
-
-    // 画像選択、取得
-
-
-//    Intent intent = getIntent();
-//    //MainActivityから値を受け取る
-//
-//    CharSequence getstring1 = intent.getCharSequenceExtra("image/*");
-//    @Override
-//    public void onActivityResult ( int requestCode, int resultCode, Intent resultData){
-//        if (requestCode == RESULT_PICK_IMAGEFILE && resultCode == RESULT_OK) {
-//            Uri uri = null;
-//            if (resultData != null) {
-//                uri = resultData.getData();
-//
-//                try {
-//                    Bitmap bmp = getBitmapFromUri(uri);
-//                    imageView2.setImageBitmap(bmp);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-//
-//    // 画像表示
-//
-//    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-//        ParcelFileDescriptor parcelFileDescriptor =
-//                getContentResolver().openFileDescriptor(uri, "r");
-//        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-//        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-//        parcelFileDescriptor.close();
-//        return image;
-//    }
-
     /**
      * 編集した時刻を取得.
      *
      * @return
      */
     private String getDate() {
-        TextView textView = (TextView) findViewById(R.id.textview_time);
+        TextView textView = (TextView) findViewById(R.id.text_time);
         return textView.getText().toString();
     }
 
@@ -397,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return
      */
     private String getComment() {
-        TextView textView = (TextView) findViewById(R.id.textview_comment);
+        TextView textView = (TextView) findViewById(R.id.text_comment);
         return textView.getText().toString();
     }
 
@@ -407,18 +344,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param quantity 　数量
      */
     private void updateQuantityText(int quantity) {
-        TextView textViewQuantity = (TextView) findViewById(R.id.textview_quantity);
+        TextView textViewQuantity = (TextView) findViewById(R.id.text_quantity);
         textViewQuantity.setText(String.valueOf(quantity));
     }
 
-    private String getResultdata() {
-        TextView resultData = (TextView) findViewById(R.id.text_result);
-        return resultData.getText().toString();
-    }
+    //TODO:仮の処理、不要になったタイミングで削除.
+    private Bitmap getBitmap() {
+        Resources r = getResources();
+        Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.sample);
 
-    private String getDetaileResultdata() {
-        TextView detaileResultData = (TextView) findViewById(R.id.textView_detaile_result);
-        return detaileResultData.getText().toString();
+        return bmp;
     }
 }
 

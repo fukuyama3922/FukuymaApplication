@@ -3,18 +3,14 @@ package com.fukuyama.fukuyamaapplication;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
 
 /**
@@ -24,204 +20,141 @@ import java.io.IOException;
 /**
  * サブアクティビティ.
  */
-public class SubActivity extends AppCompatActivity {
+public class SubActivity extends BaseActivity implements View.OnClickListener {
 
     /**
-     *サブアクティビティから呼び出したことを認識するコード.
+     * サブアクティビティから呼び出したことを認識するコード.
      */
     private static final int REQUEST_CODE_SUBACTIVITY = 1000;
+
+    /**
+     * インテントキー:数量情報.
+     */
+    private static final String INTENT_KEY_QUANTITY_INFO = "intent_key_quantity_info";
+
+    /**
+     * 数量情報保持用.
+     */
+    private QuantityInfo mQuantityInfo;
 
     /**
      * イメージビュー.
      */
     private ImageView mImageView;
 
-/**
- * インテントキー:resultData.
- *
- */
-private static final String INTENT_KEY_RESULTDATA = "intent_key_resultsata";
-
-    /**
-     * インテントキー：日付.
-     */
-    private static final String INTENT_KEY_DATE_TIME = "intent_key_date_time";
-
-    /**
-     * インテントキー：コメント.
-     */
-    private static final String INTENT_KEY_COMMENT ="intent_key_comment";
-
-    /**
-     * インテントキー：数量.
-     */
-    private static final String INTENT_KEY_QUANTITY = "intent_key_quantity";
-
-    /**
-     * resultData保持用
-     */
-    private String mResultData;
-
-    /**
-     * 時刻保持用
-     */
-    private String mDateTimeString;
-
-    /**
-     * コメント保持用.
-     */
-    private String mComment;
-
-    /**
-     * 数量保持用.
-     */
-    private int mQuantity;
-
     /**
      * インテント生成.
-     * @param activity　{@link Activity}
-     * @param dateTime 時刻
-     * @param comment　コメント
-     * @param quantity　数量
-     * @return　{@link Intent}
+     *
+     * @param activity     {@link Activity}
+     * @param quantityInfo 数量情報
+     * @return {@link Intent}
      */
-    public static Intent getNewIntent(Activity activity, String resultData, String dateTime, String comment, int quantity) {
-        //intent
+    public static Intent getNewIntent(Activity activity, QuantityInfo quantityInfo) {
         Intent intent = new Intent(activity, SubActivity.class);
-
-        //resultData
-        intent.putExtra(INTENT_KEY_RESULTDATA, resultData);
-        // 時刻
-        intent.putExtra(INTENT_KEY_DATE_TIME, dateTime);
-        // コメント
-        intent.putExtra(INTENT_KEY_COMMENT, comment);
-        // 数量
-        intent.putExtra(INTENT_KEY_QUANTITY, quantity);
-
+        intent.putExtra(INTENT_KEY_QUANTITY_INFO, quantityInfo);
         return intent;
     }
 
     /**
      * {@inheritDoc}
-     * @param savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
-        setTitle("SubActivity");
 
-        mImageView = (ImageView) findViewById(R.id.image_view);
-
-        Intent intent = getIntent();
-        mResultData = intent.getStringExtra(INTENT_KEY_RESULTDATA);
-        mDateTimeString = intent.getStringExtra(INTENT_KEY_DATE_TIME);
-        mComment = intent.getStringExtra(INTENT_KEY_COMMENT);
-        mQuantity = intent.getIntExtra(INTENT_KEY_QUANTITY, 0);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("resultData");
-        sb.append(mResultData).append("\n");
-        sb.append("時刻:");
-        sb.append(mDateTimeString).append("\n");
-        sb.append("コメント:");
-        sb.append(mComment).append(("\n"));
-        sb.append("数量:");
-        sb.append(String.valueOf(mQuantity));
-
-        //MainActivityから値を受け取る
-//        QuantityInfo info = (QuantityInfo) getIntent().getSerializableExtra("QuantityInfo");
-//        int getint = intent.getIntExtra("quantity", 0);
-//        CharSequence getstring1 = intent.getCharSequenceExtra("time");
-//        CharSequence getstring2 = intent.getCharSequenceExtra("comment");
-
-        EditText edit1 = (EditText)findViewById(R.id.editText);
-        TextView time = (TextView) findViewById(R.id.textView5);
-        TextView comment = (TextView) findViewById(R.id.textView6);
-        TextView quantity = (TextView) findViewById(R.id.textView7);
-
-        edit1.setText(mResultData);
-        time.setText("受け取った時間は" + mDateTimeString);
-        comment.setText("受け取ったコメントは" + mComment);
-        quantity.setText("受け取った数量は" + String.valueOf(mQuantity));
-
-        // ボタン押下後の処理
-        Button selectButton = (Button) findViewById(R.id.activity_detail_select_button);
-        selectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE_SUBACTIVITY);
-            }
-        });
-
-        //リターンボタン押下時の処理
-        Button returnButton = (Button) findViewById(R.id.return_button);
-        returnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Intent intent = new Intent(getApplication(), MainActivity.class);
-
-//                intent.putExtra();
-
-                Intent intent = new Intent();
-                EditText edit1 = (EditText)findViewById(R.id.editText);
-
-//                intent.putExtra("intent-key2", edit.getText().toString());
-                intent.putExtra("intent-key", edit1.getText().toString());
-
-                setResult(RESULT_OK, intent);
-                // finish() で終わらせて
-                // Intent data を送る
-                finish();
-
-//            Intent intent = new Intent(SubActivity.this, MainActivity.class);
-//                startActivity(intent);
-//                onPause();
-//                Intent intent = new Intent(SubActivity.this, MainActivity.class);
-//                startActivity(intent);
-            }
-        });
+        // 画面初期表示
+        initView();
     }
 
-        // 画像選択、取得
-        @Override
-        public void onActivityResult ( int requestCode, int resultCode, Intent resultData){
-            if (requestCode == REQUEST_CODE_SUBACTIVITY && resultCode == RESULT_OK) {
-                Uri uri = null;
-                if (resultData != null) {
-                    uri = resultData.getData();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == REQUEST_CODE_SUBACTIVITY && resultCode == RESULT_OK) {
+            Uri uri = null;
+            if (resultData != null) {
+                uri = resultData.getData();
 
-                    try {
-                        Bitmap bitmap1 = getBitmapFromUri(uri);
+                try {
+                    Bitmap bitmap1 = getBitmapFromUri(uri);
 
-                        mImageView.setImageBitmap(bitmap1);
-//                        Intent intent = new Intent();
-//
-//                        intent.putExtra("intent-key2",bitmap1);
-//
-//                        setResult(RESULT_OK, intent);
-//
-//                        finish();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    mImageView.setImageBitmap(bitmap1);
+                    mQuantityInfo.setBitmap(bitmap1);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
+    }
 
-        // 画像表示
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onClick(View view) {
 
-    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-        ParcelFileDescriptor parcelFileDescriptor =
-                getContentResolver().openFileDescriptor(uri, "r");
-        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-        parcelFileDescriptor.close();
-        return image;
+        switch (view.getId()) {
+            case R.id.activity_detail_select_button:
+                onClickSelectButton();
+                return;
 
+            case R.id.return_button:
+                onClickReturnButton();
+                return;
+
+            default:
+                return;
+        }
+    }
+
+    /**
+     * 初期表示.
+     */
+    private void initView() {
+        setTitle("SubActivity");
+
+        mImageView = (ImageView) findViewById(R.id.image_view);
+        mQuantityInfo = (QuantityInfo) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO);
+
+        //ビットマップを詳細画面に表示する
+        mImageView.setImageBitmap(mQuantityInfo.getBitmap());
+
+        // TODO:仮のボタン
+        // 選択ボタン設定
+        Button selectButton = (Button) findViewById(R.id.activity_detail_select_button);
+        selectButton.setOnClickListener(this);
+
+        // TODO:仮のボタン
+        // リターンボタン押下時の処理
+        Button returnButton = (Button) findViewById(R.id.return_button);
+        returnButton.setOnClickListener(this);
+    }
+
+    // TODO:仮処理
+
+    /**
+     * 選択ボタン押下時の処理.
+     */
+    private void onClickSelectButton() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CODE_SUBACTIVITY);
+    }
+
+    // TODO:仮処理
+
+    /**
+     * 戻るボタン押下時の処理.
+     */
+    private void onClickReturnButton() {
+        Intent intent = new Intent();
+        intent.putExtra("intent-key", mQuantityInfo);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
 

@@ -1,75 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    tools:orientation="horizontal"
     android:descendantFocusability="blocksDescendants">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- チェックボックス　-->
+    <CheckBox
+        android:id="@+id/check_select"
+        android:layout_width="@dimen/size_button_small_width"
+        android:layout_height="105dp"
+        android:layout_alignParentLeft="true" />
+
+    <!-- 時刻表示欄 -->
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_toRightOf="@id/check_select"
+        android:elevation="0dp"
+        android:text="TextView" />
 
-        <CheckBox
-            android:id="@+id/chk_select"
-            android:layout_width="20dp"
-            android:layout_height="105dp"
-            android:layout_weight="0" />
+    <!-- 数量表示欄 -->
+    <TextView
+        android:id="@+id/text_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/text_time" />
 
-        <TextView
-            android:id="@+id/textview_time"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="TextView" />
+    <!-- コメント表示欄 -->
+    <TextView
+        android:id="@+id/text_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/text_quantity"
+        android:text="TextView"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/text_quantity" />
 
-        <TextView
-            android:id="@+id/textview_quantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="TextView" />
+    <!-- ビットマップ表示欄 -->
+    <ImageView
+        android:id="@+id/image_bitmap_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/text_comment"
+        android:isScrollContainer="true"
+        android:layout_alignParentTop="true" />
 
-        <TextView
-            android:id="@+id/textview_detaile_comment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
-        <!--- <test pattern="SECAM" />
-                <Button
-                    android:id="@+id/button_send"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="send"
-                    android:focusableInTouchMode="false"
-                    android:focusable="false"
-                    />
-<test pattern="NTSC" /> -->
-        <TextView
-            android:id="@+id/textView_detaile_result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="TextView" />
+    <!-- 削除ボタン -->
+    <Button
+        android:id="@+id/button_delete"
+        android:layout_width="@dimen/size_button_small_width"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/image_bitmap_container"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="@string/label_delete" />
 
-        <Button
-                    android:id="@+id/button_delete"
-                    android:layout_width="53dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="削除"
-                    android:focusableInTouchMode="false"
-                    android:focusable="false"/>
-
-
-            </LinearLayout>
-
-        </LinearLayout>
+</RelativeLayout>
