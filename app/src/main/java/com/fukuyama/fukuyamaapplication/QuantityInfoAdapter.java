@@ -30,7 +30,6 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
      */
     private Context mContext;
 
-
     /**
      * コンストラクタ.
      *
@@ -125,7 +124,6 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
             }
         }
 
-
         Button deleteButton = (Button) convertView.findViewById(R.id.button_delete);
         deleteButton.setOnClickListener(this);
         deleteButton.setTag(position);
@@ -137,9 +135,9 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         ((TextView) convertView.findViewById(R.id.text_comment)).setText(info.getComment());
 
 //        ビットマップ表示領域にビットマップをセット
-        if (info.getBitmap() != null) {
-            ((ImageView) convertView.findViewById(R.id.image_bitmap_container)).setImageBitmap(info.getBitmap());
-        }
+//        if (info.getBitmap() != null) {
+//            ((ImageView) convertView.findViewById(R.id.image_bitmap_container)).setImageBitmap(info.getBitmap());
+//        }
 
         return convertView;
             }

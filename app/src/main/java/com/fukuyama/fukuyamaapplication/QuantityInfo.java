@@ -2,8 +2,10 @@ package com.fukuyama.fukuyamaapplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.Serializable;
 
 /**
@@ -29,8 +31,6 @@ public class QuantityInfo implements Serializable {
      * コメント.
      */
     private String mComment;
-
-    private String mResultdata;
 
     /**
      * 選択状態.
@@ -175,7 +175,7 @@ public class QuantityInfo implements Serializable {
         serializeBitmap(bitmap);
     }
 
-    /**
+    /**Bitmap bitmap
      * ビットマップをバイト配列に変換する.
      *
      * @return
@@ -192,6 +192,7 @@ public class QuantityInfo implements Serializable {
         bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESS_QUALITY, bout);
         mBitmapArray = bout.toByteArray();
     }
+
 }
 
 

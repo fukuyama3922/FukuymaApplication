@@ -79,9 +79,12 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
 
                 try {
                     Bitmap bitmap1 = getBitmapFromUri(uri);
+                    bitmap1= Bitmap.createScaledBitmap( getBitmapFromUri(uri), 620, 620, false);
 
                     mImageView.setImageBitmap(bitmap1);
+
                     mQuantityInfo.setBitmap(bitmap1);
+
 
                 } catch (IOException e) {
                     e.printStackTrace();

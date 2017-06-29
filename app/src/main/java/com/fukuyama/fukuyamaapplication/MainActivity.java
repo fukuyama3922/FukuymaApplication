@@ -193,7 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // TODO:選択された合計数量ボタン
         final Button selectButton = (Button) findViewById(R.id.select_button);
         selectButton.setOnClickListener(this);
-
+//現在時刻表示欄の設定
         mTimerTextView = (TextView) findViewById(R.id.text_time);
 
         ListView quantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
@@ -301,6 +301,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mList.clear();
         mAdapter.notifyDataSetChanged();
     }
+
 
     // 選択された合計数量ボタン押下後の処理
     private void selectList() {
