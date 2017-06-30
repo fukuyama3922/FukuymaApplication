@@ -9,6 +9,7 @@
         android:id="@+id/check_select"
         android:layout_width="@dimen/size_button_small_width"
         android:layout_height="105dp"
+        android:focusableInTouchMode="false"
         android:layout_alignParentLeft="true" />
 
     <!-- 時刻表示欄 -->

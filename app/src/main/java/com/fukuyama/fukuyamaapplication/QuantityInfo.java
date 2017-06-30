@@ -2,6 +2,7 @@ package com.fukuyama.fukuyamaapplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,7 @@ public class QuantityInfo implements Serializable {
      */
     private boolean mIsSelected;
 
+
     // TODO:不要になった段階で削除予定
     /**
      * 編集されているインデックス.
@@ -44,13 +46,10 @@ public class QuantityInfo implements Serializable {
     private int mEditIndex;
 
     /**
-     * ビットマップ保持用.
+     * ビットマップ(文字列）保持用.
      */
-    private transient Bitmap mBitmap;
+    private String mBitmapString;
 
-    private byte[] mBitmapArray;
-
-    private int COMPRESS_QUALITY;
 
     /**
      * コンストラクタ.
@@ -156,43 +155,35 @@ public class QuantityInfo implements Serializable {
     }
 
     /**
-     * ビットマップを取得する.
-     *
-     * @return
+     * ビットマップ(文字列）を取得する.
+     */
+    public String getBitmapString() {
+        return mBitmapString;
+    }
+
+    /**
+     * ビットマップ(文字列）セットをする.
+     */
+    public  void setBitmapString(String bitmapString){
+        mBitmapString = bitmapString;
+    }
+
+    /**
+     * ビットマップを取得する
      */
     public Bitmap getBitmap() {
-        mBitmap = BitmapFactory.decodeByteArray(mBitmapArray, 0, mBitmapArray.length);
-        return mBitmap;
+        return BitmapUtil.StringToBitMap(mBitmapString);
     }
 
     /**
-     * ビットマップをセットする.
-     *
-     * @return
+     * 数量情報をセットする
      */
-    public void setBitmap(Bitmap bitmap) {
-        mBitmap = bitmap;
-        serializeBitmap(bitmap);
+    public void setQuantityInfo(QuantityInfo quantityInfo) {
+        mQuantity = quantityInfo.getQuantity();
+        mIsSelected = quantityInfo.isSelected();
+        mComment = quantityInfo.getComment();
+        mBitmapString = quantityInfo.getBitmapString();
     }
-
-    /**Bitmap bitmap
-     * ビットマップをバイト配列に変換する.
-     *
-     * @return
-     */
-    public byte[] getmBitmapArray() {
-        return mBitmapArray;
-    }
-
-    /**
-     * ビットマップをバイト列に変換する.
-     */
-    private final void serializeBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESS_QUALITY, bout);
-        mBitmapArray = bout.toByteArray();
-    }
-
 }
 
 

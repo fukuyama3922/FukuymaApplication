@@ -14,14 +14,13 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * メインアクティビティ.
  */
-public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     /**
      * ログ出力用のタグ.
@@ -85,6 +84,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private final SimpleDateFormat mFormatter = new SimpleDateFormat("HH:MM:ss.");
 
     /**
+     * 数量情報保持用.
+     */
+    private QuantityInfo mQuantityInfo;
+
+    private ArrayList<QuantityInfo> mQuantityInfoList;
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -92,8 +98,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //viewの初期化
+        // viewの初期化
         initView();
+
     }
 
     /**
@@ -118,7 +125,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void run() {
                         //現在時刻の表示
-                        mTimerTextView.setText(mFormatter.format(new Date()));
+                        //TODO:test中はコメントアウト
+//                        mTimerTextView.setText(mFormatter.format(new Date()));
                     }
                 });
             }
@@ -142,13 +150,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        //破棄された画面から数量情報を受け取る.
 
         switch (requestCode) {
             case RESULT_CODE_SUB_ACTIVITY:
                 if (resultCode == RESULT_OK) {
 
                     QuantityInfo quantityInfo = (QuantityInfo) intent.getSerializableExtra("intent-key");
-                    mList.get(quantityInfo.getEditIndex()).setBitmap(quantityInfo.getBitmap());
+                    mList.get(quantityInfo.getEditIndex()).setQuantityInfo(quantityInfo);
                     mAdapter.notifyDataSetChanged();
                 }
         }
@@ -160,12 +169,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         QuantityInfo quantityInfo = mList.get(position);
         quantityInfo.setEditIndex(position);
     }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         QuantityInfo quantityInfo = mList.get(position);
+        quantityInfo.setEditIndex(position);
         Intent intent = SubActivity.getNewIntent(this, quantityInfo);
         startActivityForResult(intent, RESULT_CODE_SUB_ACTIVITY);
         return true;
@@ -292,8 +303,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 getComment()
         );
 
-        quantityInfo.setBitmap(getBitmap());
-
+        String covertBitmap = BitmapUtil.BitMapToString(getBitmap());
+        quantityInfo.setBitmapString(covertBitmap);
 
         //リストの表示更新
         mList.add(quantityInfo);
@@ -358,11 +369,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         textViewQuantity.setText(String.valueOf(quantity));
     }
 
-    //TODO:仮の処理、不要になったタイミングで削除.
+//    private void updateView(ArrayList<QuantityInfo> quantityInfoList) {
+//
+//    }
+
+    /**
+     * @return
+     */
     private Bitmap getBitmap() {
+
         Resources r = getResources();
         Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.sample);
-
         return bmp;
     }
 

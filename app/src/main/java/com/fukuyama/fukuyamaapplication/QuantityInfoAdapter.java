@@ -79,6 +79,13 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+
+            case R.id.check_select:
+                //チェックボタン押下時の処理
+
+
+                return;
+
             case R.id.button_delete:
                 //削除ボタン押下時の処理.
 
@@ -90,6 +97,8 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
 
                 return;
 
+            default:
+                return;
         }
     }
 
@@ -128,17 +137,33 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         deleteButton.setOnClickListener(this);
         deleteButton.setTag(position);
 
-        ((CheckBox) convertView.findViewById(R.id.check_select)).setChecked(info.isSelected());
-        ((TextView) convertView.findViewById(R.id.text_time)).setText(info.getTime());
+        CheckBox check = (CheckBox) convertView.findViewById(R.id.check_select);
+        check.setOnClickListener(this);
 
+        ((TextView) convertView.findViewById(R.id.text_time)).setText(info.getTime());
         ((TextView) convertView.findViewById(R.id.text_quantity)).setText("" + info.getQuantity());
         ((TextView) convertView.findViewById(R.id.text_comment)).setText(info.getComment());
+        ((CheckBox) convertView.findViewById(R.id.check_select)).setChecked(info.isSelected());
 
-//        ビットマップ表示領域にビットマップをセット
-//        if (info.getBitmap() != null) {
-//            ((ImageView) convertView.findViewById(R.id.image_bitmap_container)).setImageBitmap(info.getBitmap());
-//        }
+        try {
+            ((ImageView) convertView.findViewById(R.id.image_bitmap_container)).setImageBitmap(info.getBitmap());
+        } catch (Exception e) {
+
+        }
 
         return convertView;
-            }
+    }
+
+//    public Adapter(Activity a, int textViewResourceId, ArrayList<QuantityInfo> entries) {
+//        this.entries = entries;
+//        this.activity = a;
+//    }
+//
+//    public int getSum() {
+//        int sum = 0;
+//        for (QuantityInfo quantityInfo : entries) {
+//            sum += quantityInfo.getQuantity();
+//        }
+//        return getSum();
+//    }
 }

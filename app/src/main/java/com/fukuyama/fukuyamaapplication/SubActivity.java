@@ -7,9 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -30,10 +28,10 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     /**
      * インテントキー:数量情報.
      */
-    private static final String INTENT_KEY_QUANTITY_INFO = "intent_key_quantity_info";
+    private static final String INTENT_KEY_QUANTITY_INFO_LIST = "intent_key_quantity_info_list";
 
     /**
-     * 数量情報保持用.
+     * 数量情報リスト保持用.
      */
     private QuantityInfo mQuantityInfo;
 
@@ -50,8 +48,9 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      * @return {@link Intent}
      */
     public static Intent getNewIntent(Activity activity, QuantityInfo quantityInfo) {
+
         Intent intent = new Intent(activity, SubActivity.class);
-        intent.putExtra(INTENT_KEY_QUANTITY_INFO, quantityInfo);
+        intent.putExtra(INTENT_KEY_QUANTITY_INFO_LIST, quantityInfo);
         return intent;
     }
 
@@ -79,12 +78,23 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
 
                 try {
                     Bitmap bitmap1 = getBitmapFromUri(uri);
-                    bitmap1= Bitmap.createScaledBitmap( getBitmapFromUri(uri), 620, 620, false);
+                    //画像のサイズを取得するメソッド
+                    int width  = bitmap1.getWidth();
+                    int height = bitmap1.getHeight();
+                    // 画像サイズの文字列を返す
+                    String size = "w:" + width + ",h:" + height;
+
+                    MessageUtil.showToast(this,size);
+                    //選択した画像をサムネイルとしてアルバム上にずらっと何枚も表示
+                    //サムネイルをクリックすることでギャラリー内の元解像度の画像を表示
+                    //巣ワイプなどで詳細画面ないの画像を切り替え
+
+                    bitmap1 = Bitmap.createScaledBitmap(getBitmapFromUri(uri), 500, 500, false);
 
                     mImageView.setImageBitmap(bitmap1);
-
-                    mQuantityInfo.setBitmap(bitmap1);
-
+//                    bitmap1 = Bitmap.createScaledBitmap(getBitmapFromUri(uri), 500, 500, false);
+                    String convertBitmap = BitmapUtil.BitMapToString(bitmap1);
+                    mQuantityInfo.setBitmapString(convertBitmap);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -119,11 +129,14 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     private void initView() {
         setTitle("SubActivity");
 
-        mImageView = (ImageView) findViewById(R.id.image_view);
-        mQuantityInfo = (QuantityInfo) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO);
+        mQuantityInfo = (QuantityInfo) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO_LIST);
 
-        //ビットマップを詳細画面に表示する
+
+        mImageView = (ImageView) findViewById(R.id.image_view);
+//       Bitmap bitmap2 =Bitmap.createScaledBitmap(mQuantityInfo.getBitmap(), 500, 500, false);
         mImageView.setImageBitmap(mQuantityInfo.getBitmap());
+
+
 
         // TODO:仮のボタン
         // 選択ボタン設定
