@@ -1,22 +1,20 @@
-package com.fukuyama.fukuyamaapplication;
+package com.fukuyama.fukuyamaapplication.db;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
-import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
+
 import java.io.Serializable;
 
 /**
- * Created by fukuyama on 2017/05/27.
+ * 数量情報Entityクラス.
  */
+public class QuantityInfoEntity implements Serializable {
 
-/**
- * 数量情報.
- */
-public class QuantityInfo implements Serializable {
+    /**
+     *
+     */
+    private int mId;
 
     /**
      * 数量.
@@ -26,7 +24,7 @@ public class QuantityInfo implements Serializable {
     /**
      * 時刻.
      */
-    private String mTime;
+    private String mDate;
 
     /**
      * コメント.
@@ -37,7 +35,6 @@ public class QuantityInfo implements Serializable {
      * 選択状態.
      */
     private boolean mIsSelected;
-
 
     // TODO:不要になった段階で削除予定
     /**
@@ -50,20 +47,11 @@ public class QuantityInfo implements Serializable {
      */
     private String mBitmapString;
 
-
     /**
      * コンストラクタ.
-     *
-     * @param quantity 数量
-     * @param time     時間
-     * @param comment  コメント
      */
-    public QuantityInfo(int quantity, String time, String comment) {
-        mQuantity = quantity;
-        mTime = time;
-        mComment = comment;
-        // TODO:コンストラクタで指定するかは検討
-        mIsSelected = false;
+    public QuantityInfoEntity() {
+        // 処理なし
     }
 
     /**
@@ -82,6 +70,25 @@ public class QuantityInfo implements Serializable {
      */
     public void setSelected(boolean selected) {
         mIsSelected = selected;
+    }
+
+
+    /**
+     * IDを取得する.
+     *
+     * @return
+     */
+    public int getId() {
+        return mId;
+    }
+
+    /**
+     * IDをセットする.
+     *
+     * @param id id
+     */
+    public void setId(int id) {
+        mId = id;
     }
 
     /**
@@ -107,17 +114,17 @@ public class QuantityInfo implements Serializable {
      *
      * @return 時刻
      */
-    public String getTime() {
-        return mTime;
+    public String getDate() {
+        return mDate;
     }
 
     /**
      * 時刻をセットする.
      *
-     * @param time
+     * @param date
      */
-    public void setTime(String time) {
-        mTime = time;
+    public void setDate(String date) {
+        mDate = date;
     }
 
     /**
@@ -164,7 +171,7 @@ public class QuantityInfo implements Serializable {
     /**
      * ビットマップ(文字列）セットをする.
      */
-    public  void setBitmapString(String bitmapString){
+    public void setBitmapString(String bitmapString) {
         mBitmapString = bitmapString;
     }
 
@@ -178,11 +185,11 @@ public class QuantityInfo implements Serializable {
     /**
      * 数量情報をセットする
      */
-    public void setQuantityInfo(QuantityInfo quantityInfo) {
-        mQuantity = quantityInfo.getQuantity();
-        mIsSelected = quantityInfo.isSelected();
-        mComment = quantityInfo.getComment();
-        mBitmapString = quantityInfo.getBitmapString();
+    public void setQuantityInfo(QuantityInfoEntity quantityInfoEntity) {
+        mQuantity = quantityInfoEntity.getQuantity();
+        mIsSelected = quantityInfoEntity.isSelected();
+        mComment = quantityInfoEntity.getComment();
+        mBitmapString = quantityInfoEntity.getBitmapString();
     }
 }
 
