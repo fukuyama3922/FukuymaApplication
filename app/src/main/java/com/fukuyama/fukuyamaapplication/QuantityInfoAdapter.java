@@ -11,9 +11,14 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
+import com.fukuyama.fukuyamaapplication.util.MessageUtil;
+
 import java.util.ArrayList;
 
 public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickListener {
+
 
     /**
      * {@link LayoutInflater}
@@ -23,7 +28,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     /**
      * 数量情報リスト.
      */
-    private ArrayList<QuantityInfo> mQuantityInfoList;
+    private ArrayList<QuantityInfoEntity> mQuantityInfoEntityList;
 
     /**
      * {@link Context}
@@ -43,10 +48,10 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     /**
      * 数量情報をアダプタにセットする.
      *
-     * @param quantityInfoList
+     * @param quantityInfoEntityList
      */
-    public void setQuantityInfoList(ArrayList<QuantityInfo> quantityInfoList) {
-        mQuantityInfoList = quantityInfoList;
+    public void setQuantityInfoList(ArrayList<QuantityInfoEntity> quantityInfoEntityList) {
+        mQuantityInfoEntityList = quantityInfoEntityList;
     }
 
     /**
@@ -54,15 +59,15 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
      */
     @Override
     public int getCount() {
-        return mQuantityInfoList.size();
+        return mQuantityInfoEntityList.size();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public QuantityInfo getItem(int position) {
-        return mQuantityInfoList.get(position);
+    public QuantityInfoEntity getItem(int position) {
+        return mQuantityInfoEntityList.get(position);
     }
 
     /**
@@ -70,7 +75,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
      */
     @Override
     public long getItemId(int position) {
-        return mQuantityInfoList.get(position).hashCode();
+        return mQuantityInfoEntityList.get(position).hashCode();
     }
 
     /**
@@ -82,16 +87,16 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
 
             case R.id.check_select:
                 //チェックボタン押下時の処理
-
-
                 return;
 
             case R.id.button_delete:
                 //削除ボタン押下時の処理.
-
                 int position = Integer.valueOf(v.getTag().toString()).intValue();
-                mQuantityInfoList.remove(position);
+                onClickDeleteButton(position);
+                mQuantityInfoEntityList.remove(position);
 
+//
+//                onClickDeleteButton();
                 // listViewの表示更新
                 notifyDataSetChanged();
 
@@ -112,7 +117,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
             convertView = mLayoutInflater.inflate(R.layout.row_quantity_info, parent, false);
         }
 
-        QuantityInfo info = getItem(position);
+        QuantityInfoEntity info = getItem(position);
 
         // 行が選択されていたら
         if (info.isSelected()) {
@@ -140,7 +145,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         CheckBox check = (CheckBox) convertView.findViewById(R.id.check_select);
         check.setOnClickListener(this);
 
-        ((TextView) convertView.findViewById(R.id.text_time)).setText(info.getTime());
+        ((TextView) convertView.findViewById(R.id.text_time)).setText(info.getDate());
         ((TextView) convertView.findViewById(R.id.text_quantity)).setText("" + info.getQuantity());
         ((TextView) convertView.findViewById(R.id.text_comment)).setText(info.getComment());
         ((CheckBox) convertView.findViewById(R.id.check_select)).setChecked(info.isSelected());
@@ -154,16 +159,44 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
         return convertView;
     }
 
-//    public Adapter(Activity a, int textViewResourceId, ArrayList<QuantityInfo> entries) {
+//    public Adapter(Activity a, int textViewResourceId, ArrayList<QuantityInfoEntity> entries) {
 //        this.entries = entries;
 //        this.activity = a;
 //    }
 //
 //    public int getSum() {
 //        int sum = 0;
-//        for (QuantityInfo quantityInfo : entries) {
+//        for (QuantityInfoEntity quantityInfo : entries) {
 //            sum += quantityInfo.getQuantity();
 //        }
 //        return getSum();
 //    }
+
+    /**
+     * 削除ボタン押下時の処理,
+     *
+     * @param position 押下された削除ボタンが表示されているリストアイテムポジション
+     */
+    private void onClickDeleteButton(int position) {
+        // リストを1件削除.
+        deleteQuantityInfo(position);
+    }
+
+    /**
+     * 任意のポジションの数量情報を削除する.
+     *
+     * @param position リストのポジション
+     */
+    private void deleteQuantityInfo(int position) {
+
+        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
+        String message = "削除成功";
+        if (quantityInfoDao.deleteQuantity(getItem(position)) == -1) {
+            message = "削除失敗";
+        }
+
+        MessageUtil.showToast(mContext, message);
+    }
+
+
 }

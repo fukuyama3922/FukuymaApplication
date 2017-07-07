@@ -1,7 +1,8 @@
-package com.fukuyama.fukuyamaapplication;
+package com.fukuyama.fukuyamaapplication.activity;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -11,6 +12,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.fukuyama.fukuyamaapplication.QuantityInfoAdapter;
+import com.fukuyama.fukuyamaapplication.R;
+import com.fukuyama.fukuyamaapplication.db.DbOpenHelper;
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
+import com.fukuyama.fukuyamaapplication.util.MessageUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +64,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * 数量、コメント、時刻情報.
      */
-    private ArrayList<QuantityInfo> mList = new ArrayList<>();
+    private ArrayList<QuantityInfoEntity> mList;
 
     /**
      * {@limk Timer}
@@ -86,9 +94,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * 数量情報保持用.
      */
-    private QuantityInfo mQuantityInfo;
+    private QuantityInfoEntity mQuantityInfoEntity;
 
-    private ArrayList<QuantityInfo> mQuantityInfoList;
+    private ArrayList<QuantityInfoEntity> mQuantityInfoEntityList;
 
     /**
      * {@inheritDoc}
@@ -156,8 +164,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case RESULT_CODE_SUB_ACTIVITY:
                 if (resultCode == RESULT_OK) {
 
-                    QuantityInfo quantityInfo = (QuantityInfo) intent.getSerializableExtra("intent-key");
-                    mList.get(quantityInfo.getEditIndex()).setQuantityInfo(quantityInfo);
+                    QuantityInfoEntity quantityInfoEntity = (QuantityInfoEntity) intent.getSerializableExtra("intent-key");
+                    mList.get(quantityInfoEntity.getEditIndex()).setQuantityInfo(quantityInfoEntity);
                     mAdapter.notifyDataSetChanged();
                 }
         }
@@ -166,8 +174,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     // ビュー押下後の処理　後ほど削除
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        QuantityInfo quantityInfo = mList.get(position);
-        quantityInfo.setEditIndex(position);
+        QuantityInfoEntity quantityInfoEntity = mList.get(position);
+        quantityInfoEntity.setEditIndex(position);
     }
 
     /**
@@ -175,9 +183,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        QuantityInfo quantityInfo = mList.get(position);
-        quantityInfo.setEditIndex(position);
-        Intent intent = SubActivity.getNewIntent(this, quantityInfo);
+        QuantityInfoEntity quantityInfoEntity = mList.get(position);
+        quantityInfoEntity.setEditIndex(position);
+        Intent intent = SubActivity.getNewIntent(this, quantityInfoEntity);
         startActivityForResult(intent, RESULT_CODE_SUB_ACTIVITY);
         return true;
     }
@@ -210,11 +218,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // TODO:選択された合計数量ボタン
         final Button selectButton = (Button) findViewById(R.id.select_button);
         selectButton.setOnClickListener(this);
-//現在時刻表示欄の設定
+
+        //現在時刻表示欄の設定
         mTimerTextView = (TextView) findViewById(R.id.text_time);
 
         ListView quantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
         mAdapter = new QuantityInfoAdapter(MainActivity.this);
+
+        mList = getQuantityInfoList();
+
         mAdapter.setQuantityInfoList(mList);
         quantityInfoListView.setAdapter(mAdapter);
         quantityInfoListView.setOnItemClickListener(this);
@@ -240,8 +252,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 return;
 
             case R.id.button_add:
-                // 追加ボタン押下時の処理.
-                addQuantityInfo();
+                // 追加ボタン押下時の処理
+                onClickAddButton();
                 return;
 
             case R.id.button_clear:
@@ -297,17 +309,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void addQuantityInfo() {
 
-        QuantityInfo quantityInfo = new QuantityInfo(
-                mQuantity,
-                getDate(),
-                getComment()
-        );
+        QuantityInfoEntity quantityInfoEntity = getEditQuantityInfo();
 
-        String covertBitmap = BitmapUtil.BitMapToString(getBitmap());
-        quantityInfo.setBitmapString(covertBitmap);
+//        String covertBitmap = BitmapUtil.BitMapToString(getBitmap());
+//        quantityInfoEntity.setBitmapString(covertBitmap);
+
+        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
+        String message = "追加成功";
+        if (quantityInfoDao.insertQuantity(quantityInfoEntity) == -1) {
+            message = "追加失敗";
+        }
+
+        MessageUtil.showToast(this, message);
 
         //リストの表示更新
-        mList.add(quantityInfo);
+        mList.add(quantityInfoEntity);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -325,7 +341,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void selectList() {
         int sum = 0;
 
-        for (QuantityInfo info : mList) {
+        for (QuantityInfoEntity info : mList) {
             // チェックボックスにチェックが入っている場合
             if (info.isSelected()) {
                 // 数量を加算する
@@ -369,7 +385,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         textViewQuantity.setText(String.valueOf(quantity));
     }
 
-//    private void updateView(ArrayList<QuantityInfo> quantityInfoList) {
+//    private void updateView(ArrayList<QuantityInfoEntity> quantityInfoList) {
 //
 //    }
 
@@ -383,7 +399,41 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return bmp;
     }
 
+    /**
+     * 数量情報リストを取得する.
+     *
+     * @return 数量情報リスト
+     */
+    private ArrayList<QuantityInfoEntity> getQuantityInfoList() {
 
+        DbOpenHelper dbOpenHelper = new DbOpenHelper(this);
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
+        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(db);
+        ArrayList<QuantityInfoEntity> quantityInfoList = quantityInfoDao.findAll();
+
+        return quantityInfoList;
+    }
+
+    /**
+     * 追加ボタン押下時の処理.
+     */
+    private void onClickAddButton() {
+        // リストを1件追加
+        addQuantityInfo();
+    }
+
+    /**
+     * 追加ボタン押下時に編集されていた数量情報を取得する.
+     *
+     * @return {@link QuantityInfoEntity}
+     */
+    private QuantityInfoEntity getEditQuantityInfo() {
+        QuantityInfoEntity quantityInfoEntity = new QuantityInfoEntity();
+        quantityInfoEntity.setQuantity(mQuantity);
+        quantityInfoEntity.setComment(getComment());
+        quantityInfoEntity.setDate(getDate());
+        return quantityInfoEntity;
+    }
 }
 
 

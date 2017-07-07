@@ -1,4 +1,4 @@
-package com.fukuyama.fukuyamaapplication;
+package com.fukuyama.fukuyamaapplication.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

@@ -1,6 +1,5 @@
-package com.fukuyama.fukuyamaapplication;
+package com.fukuyama.fukuyamaapplication.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 

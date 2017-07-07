@@ -126,6 +126,7 @@ public class QuantityInfoEntity implements Serializable {
     public void setDate(String date) {
         mDate = date;
     }
+    
 
     /**
      * コメントを取得する.

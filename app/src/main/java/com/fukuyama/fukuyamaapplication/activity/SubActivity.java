@@ -1,4 +1,4 @@
-package com.fukuyama.fukuyamaapplication;
+package com.fukuyama.fukuyamaapplication.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
+import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
+import com.fukuyama.fukuyamaapplication.util.MessageUtil;
+import com.fukuyama.fukuyamaapplication.R;
 
 import java.io.IOException;
 
@@ -33,7 +38,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     /**
      * 数量情報リスト保持用.
      */
-    private QuantityInfo mQuantityInfo;
+    private QuantityInfoEntity mQuantityInfoEntity;
 
     /**
      * イメージビュー.
@@ -44,13 +49,13 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      * インテント生成.
      *
      * @param activity     {@link Activity}
-     * @param quantityInfo 数量情報
+     * @param quantityInfoEntity 数量情報
      * @return {@link Intent}
      */
-    public static Intent getNewIntent(Activity activity, QuantityInfo quantityInfo) {
+    public static Intent getNewIntent(Activity activity, QuantityInfoEntity quantityInfoEntity) {
 
         Intent intent = new Intent(activity, SubActivity.class);
-        intent.putExtra(INTENT_KEY_QUANTITY_INFO_LIST, quantityInfo);
+        intent.putExtra(INTENT_KEY_QUANTITY_INFO_LIST, quantityInfoEntity);
         return intent;
     }
 
@@ -94,7 +99,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
                     mImageView.setImageBitmap(bitmap1);
 //                    bitmap1 = Bitmap.createScaledBitmap(getBitmapFromUri(uri), 500, 500, false);
                     String convertBitmap = BitmapUtil.BitMapToString(bitmap1);
-                    mQuantityInfo.setBitmapString(convertBitmap);
+                    mQuantityInfoEntity.setBitmapString(convertBitmap);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -129,12 +134,12 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     private void initView() {
         setTitle("SubActivity");
 
-        mQuantityInfo = (QuantityInfo) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO_LIST);
+        mQuantityInfoEntity = (QuantityInfoEntity) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO_LIST);
 
 
         mImageView = (ImageView) findViewById(R.id.image_view);
-//       Bitmap bitmap2 =Bitmap.createScaledBitmap(mQuantityInfo.getBitmap(), 500, 500, false);
-        mImageView.setImageBitmap(mQuantityInfo.getBitmap());
+//       Bitmap bitmap2 =Bitmap.createScaledBitmap(mQuantityInfoEntity.getBitmap(), 500, 500, false);
+        mImageView.setImageBitmap(mQuantityInfoEntity.getBitmap());
 
 
 
@@ -168,7 +173,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      */
     private void onClickReturnButton() {
         Intent intent = new Intent();
-        intent.putExtra("intent-key", mQuantityInfo);
+        intent.putExtra("intent-key", mQuantityInfoEntity);
         setResult(RESULT_OK, intent);
         finish();
     }

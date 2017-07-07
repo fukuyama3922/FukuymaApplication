@@ -1,12 +1,12 @@
 package com.fukuyama.fukuyamaapplication;
 
+import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
+
 import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by fukuyama on 2017/07/04.
