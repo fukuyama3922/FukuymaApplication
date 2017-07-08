@@ -20,6 +20,9 @@ public interface Observer {
      */
     public  static final int OPTION_INDEX_INSERT_QUERY_RESULT = 0;
 
+    /**
+     * オプションインデックス:DB削除処理結果.
+     */
     public static final int OPTION_INDEX_DELETE_QUERY_RESULT = 1;
 
     /**

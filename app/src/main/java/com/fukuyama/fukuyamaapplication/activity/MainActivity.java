@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fukuyama.fukuyamaapplication.AppBean;
 import com.fukuyama.fukuyamaapplication.Application;
 import com.fukuyama.fukuyamaapplication.Observer;
 import com.fukuyama.fukuyamaapplication.QuantityInfoAdapter;
@@ -99,10 +100,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private final SimpleDateFormat mFormatter = new SimpleDateFormat("HH:MM:ss.");
 
-    /**
-     * 数量情報保持用.
-     */
-    private QuantityInfoEntity mQuantityInfoEntity;
 
     private ProgressDialog mProgressDialog;
     /**
@@ -130,17 +127,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
                     return;
 
-                case Observer.NOTIFICATION_CODE_DELETE_QUERY_COMPLETE:
-                    //DB削除処理完了時
-                    if ((long) options[Observer.OPTION_INDEX_DELETE_QUERY_RESULT] == -1) {
-                        MessageUtil.showToast(getApplicationContext(), "DB削除処理失敗");
-                        return;
-                    }
-                    updateView();
-                    return;
-
-                default:
-                    return;
 
             }
         }
@@ -319,7 +305,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * 表示更新.
      */
-    private void updateView() {
+    public void updateView() {
         showQuantityInfoList();
     }
 
@@ -483,17 +469,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     /**
-     * 数量情報リストを取得する.
-     *
-     * @return 数量情報リスト
-     */
-    private ArrayList<QuantityInfoEntity> getQuantityInfoList() {
-        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
-        ArrayList<QuantityInfoEntity> quantityInfoList = quantityInfoDao.findAll();
-        return quantityInfoList;
-    }
-
-    /**
      * 追加ボタン押下時に編集されていた数量情報を取得する.
      *
      * @return {@link QuantityInfoEntity}
@@ -524,6 +499,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void dismissProgressDialog() {
         mProgressDialog.dismiss();
         mProgressDialog = null;
+    }
+
+    /**
+     * 数量情報リストを取得する.
+     *
+     * @return 数量情報リスト
+     */
+
+    private ArrayList<QuantityInfoEntity> getQuantityInfoList() {
+        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
+        ArrayList<QuantityInfoEntity> quantityInfoList = quantityInfoDao.findAll();
+        return quantityInfoList;
+        // TODO:AppBeanから情報取得
+//        AppBean appBean = (AppBean) getApplication();
+//        return appBean.list;
     }
 }
 

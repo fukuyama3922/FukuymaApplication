@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.fukuyama.fukuyamaapplication.Application;
 import com.fukuyama.fukuyamaapplication.Observer;
+import com.fukuyama.fukuyamaapplication.activity.MainActivity;
 
 import java.util.ArrayList;
 
@@ -63,7 +64,7 @@ public class QuantityInfoDao {
      * @param context {@link Context}
      */
     public QuantityInfoDao(Context context) {
-        mDbOpenHelper = new DbOpenHelper(context);
+        mDbOpenHelper = new DbOpenHelper((MainActivity) context);
     }
 
     /**
@@ -184,6 +185,7 @@ public class QuantityInfoDao {
         return result;
     }
 
+
     public void saveDB(int updatedQuantity, String date, String comment, String picture) {
         //トランザクション開始.
         mDb.beginTransaction();
@@ -256,7 +258,7 @@ public class QuantityInfoDao {
      *
      * @param quantityInfoEntity
      */
-    public void deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
+    public long deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
         long result;
 
         try {
@@ -277,10 +279,9 @@ public class QuantityInfoDao {
             endTransaction();
             closeDb();
         }
-
-        // TODO:削除時の通知コード
-        // オブザーバにDB追加処理完了を通知コードを設定
-        Application.notifityObservers(Observer.NOTIFICATION_CODE_DELETE_QUERY_COMPLETE, new Object[]{null,result});
+        return result;
     }
+
+
 }
 //   -

@@ -11,8 +11,11 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fukuyama.fukuyamaapplication.activity.MainActivity;
+import com.fukuyama.fukuyamaapplication.db.DeleteTask;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
+import com.fukuyama.fukuyamaapplication.util.MessageUtil;
 
 import java.util.ArrayList;
 
@@ -28,6 +31,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
      * 数量情報リスト.
      */
     private ArrayList<QuantityInfoEntity> mQuantityInfoEntityList;
+
 
     /**
      * {@link Context}
@@ -52,6 +56,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     public void setQuantityInfoList(ArrayList<QuantityInfoEntity> quantityInfoEntityList) {
         mQuantityInfoEntityList = quantityInfoEntityList;
     }
+
 
     /**
      * {@inheritDoc}
@@ -89,7 +94,13 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
             case R.id.button_delete:
                 //削除ボタン押下時の処理.
                 int position = Integer.valueOf(v.getTag().toString()).intValue();
-                onClickDeleteButton(position);
+//                onClickDeleteButton(position);
+                mQuantityInfoEntityList.remove(position);
+
+//
+//                onClickDeleteButton();
+                // listViewの表示更新
+                notifyDataSetChanged();
                 return;
             default:
                 return;
@@ -161,16 +172,31 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
 //        return getSum();
 //    }
 
-    /**
-     * 削除ボタン押下時の処理,
-     *
-     * @param position 押下された削除ボタンが表示されているリストアイテムポジション
-     */
-    private void onClickDeleteButton(int position) {
-        // リストを1件削除.
-        deleteQuantityInfo(position);
-    }
-
+//
+//    public void notification(int notificationbCode, Object[] options) {
+//
+////        dismissProgressDialog();
+//
+//        switch (notificationbCode) {
+//            case Observer.NOTIFICATION_CODE_DELETE_QUERY_COMPLETE:
+//                //DB削除処理完了時
+//                if ((long) options[Observer.OPTION_INDEX_DELETE_QUERY_RESULT] == -1) {
+////                    MessageUtil.showToast(getApplicationContext(), "DB削除処理失敗");
+//                    return;
+//                }
+//                MainActivity.updateView();
+//                return;
+//
+//            default:
+//                return;
+//
+//
+//        }
+//    }
+////
+//    public void onClickDeleteButton() {
+//        deleteQuantityInfo();
+//    }
     /**
      * 任意のポジションの数量情報を削除する.
      *
@@ -179,5 +205,13 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     private void deleteQuantityInfo(int position) {
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
         quantityInfoDao.deleteQuantity(getItem(position));
+//        showProgressDialog("DB追加処理中");
+        DeleteTask task = new DeleteTask(mContext);
+        task.execute(mQuantityInfoEntityList.get(position));
+
+
     }
+
+
 }
+

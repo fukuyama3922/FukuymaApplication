@@ -3,6 +3,7 @@ package com.fukuyama.fukuyamaapplication.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.fukuyama.fukuyamaapplication.activity.MainActivity;
 
 /**
  * DBオープンヘルパー.
@@ -46,7 +47,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
      *
      * @param context {@link Context}
      */
-    public DbOpenHelper(Context context) {
+    public DbOpenHelper(MainActivity context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
