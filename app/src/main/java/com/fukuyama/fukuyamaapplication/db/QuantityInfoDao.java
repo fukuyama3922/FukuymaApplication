@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.Observer;
+
 import java.util.ArrayList;
 
 /**
@@ -57,20 +60,10 @@ public class QuantityInfoDao {
     /**
      * コンストラクタ.
      *
-     * @param db {@link SQLiteDatabase}
-     */
-    public QuantityInfoDao(SQLiteDatabase db) {
-        mDb = db;
-    }
-
-    /**
-     * コンストラクタ.
-     *
      * @param context {@link Context}
      */
     public QuantityInfoDao(Context context) {
         mDbOpenHelper = new DbOpenHelper(context);
-
     }
 
     /**
@@ -134,14 +127,25 @@ public class QuantityInfoDao {
      */
     public ArrayList<QuantityInfoEntity> findAll() {
         ArrayList<QuantityInfoEntity> quantityInfoEntityList = new ArrayList<>();
-        Cursor cursor = mDb.query(DB_TABLE, null, null, null, null, null, COL_ID);
-        while (cursor.moveToNext()) {
-            QuantityInfoEntity quantityInfoEntity = new QuantityInfoEntity();
-            quantityInfoEntity.setId(cursor.getInt(0));
-            quantityInfoEntity.setQuantity(cursor.getInt(1));
-            quantityInfoEntity.setDate(cursor.getString(2));
-            quantityInfoEntity.setComment(cursor.getString(3));
-            quantityInfoEntityList.add(quantityInfoEntity);
+
+        try {
+            openReadableDb();
+            beginTransaction();
+
+            Cursor cursor = mDb.query(DB_TABLE, null, null, null, null, null, COL_ID);
+            while (cursor.moveToNext()) {
+                QuantityInfoEntity quantityInfoEntity = new QuantityInfoEntity();
+                quantityInfoEntity.setId(cursor.getInt(0));
+                quantityInfoEntity.setQuantity(cursor.getInt(1));
+                quantityInfoEntity.setDate(cursor.getString(2));
+                quantityInfoEntity.setComment(cursor.getString(3));
+                quantityInfoEntityList.add(quantityInfoEntity);
+            }
+        } catch (Exception e) {
+            Log.e("aaa", e.getMessage());
+        } finally {
+            endTransaction();
+            closeDb();
         }
         return quantityInfoEntityList;
     }
@@ -177,7 +181,6 @@ public class QuantityInfoDao {
             endTransaction();
             closeDb();
         }
-
         return result;
     }
 
@@ -253,7 +256,7 @@ public class QuantityInfoDao {
      *
      * @param quantityInfoEntity
      */
-    public long deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
+    public void deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
         long result;
 
         try {
@@ -275,7 +278,9 @@ public class QuantityInfoDao {
             closeDb();
         }
 
-        return result;
+        // TODO:削除時の通知コード
+        // オブザーバにDB追加処理完了を通知コードを設定
+        Application.notifityObservers(Observer.NOTIFICATION_CODE_DELETE_QUERY_COMPLETE, new Object[]{null,result});
     }
 }
 //   -

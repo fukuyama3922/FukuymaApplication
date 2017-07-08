@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
-import com.fukuyama.fukuyamaapplication.util.MessageUtil;
 
 import java.util.ArrayList;
 
@@ -84,24 +83,14 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
             case R.id.check_select:
                 //チェックボタン押下時の処理
                 return;
-
             case R.id.button_delete:
                 //削除ボタン押下時の処理.
                 int position = Integer.valueOf(v.getTag().toString()).intValue();
                 onClickDeleteButton(position);
-                mQuantityInfoEntityList.remove(position);
-
-//
-//                onClickDeleteButton();
-                // listViewの表示更新
-                notifyDataSetChanged();
-
                 return;
-
             default:
                 return;
         }
@@ -188,15 +177,7 @@ public class QuantityInfoAdapter extends BaseAdapter implements View.OnClickList
      * @param position リストのポジション
      */
     private void deleteQuantityInfo(int position) {
-
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
-        String message = "削除成功";
-        if (quantityInfoDao.deleteQuantity(getItem(position)) == -1) {
-            message = "削除失敗";
-        }
-
-        MessageUtil.showToast(mContext, message);
+        quantityInfoDao.deleteQuantity(getItem(position));
     }
-
-
 }

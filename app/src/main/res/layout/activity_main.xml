@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/holo_green_dark"
     android:orientation="vertical"
-    tools:context="com.fukuyama.fukuyamaapplication.MainActivity">
+    tools:context="com.fukuyama.fukuyamaapplication.activity.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
