@@ -8,6 +8,7 @@ import android.widget.Toast;
  */
 
 public class MessageUtil {
+
     /**
      * トーストを表示する
      * @param context {@link Context}

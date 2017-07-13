@@ -1,9 +1,5 @@
 package com.fukuyama.fukuyamaapplication.db;
 
-import android.graphics.Bitmap;
-
-import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
-
 import java.io.Serializable;
 
 /**
@@ -12,7 +8,7 @@ import java.io.Serializable;
 public class QuantityInfoEntity implements Serializable {
 
     /**
-     *
+     * ID.
      */
     private int mId;
 
@@ -36,16 +32,10 @@ public class QuantityInfoEntity implements Serializable {
      */
     private boolean mIsSelected;
 
-    // TODO:不要になった段階で削除予定
     /**
-     * 編集されているインデックス.
+     * URI(文字列).
      */
-    private int mEditIndex;
-
-    /**
-     * ビットマップ(文字列）保持用.
-     */
-    private String mBitmapString;
+    private String mUriString;
 
     /**
      * コンストラクタ.
@@ -53,25 +43,6 @@ public class QuantityInfoEntity implements Serializable {
     public QuantityInfoEntity() {
         // 処理なし
     }
-
-    /**
-     * 選択されているか.
-     *
-     * @return true = 選択されている, false = 選択されていない
-     */
-    public boolean isSelected() {
-        return mIsSelected;
-    }
-
-    /**
-     * 選択状態をセットする.
-     *
-     * @param selected 選択状態
-     */
-    public void setSelected(boolean selected) {
-        mIsSelected = selected;
-    }
-
 
     /**
      * IDを取得する.
@@ -147,50 +118,39 @@ public class QuantityInfoEntity implements Serializable {
     }
 
     /**
-     * 編集しているインデックスを取得する.
-     */
-    public int getEditIndex() {
-        return mEditIndex;
-    }
-
-    /**
-     * 編集しているインデックスをセットする.
+     * 選択されているか.
      *
-     * @param editIndex
+     * @return true = 選択されている, false = 選択されていない
      */
-    public void setEditIndex(int editIndex) {
-        mEditIndex = editIndex;
+    public boolean isSelected() {
+        return mIsSelected;
     }
 
     /**
-     * ビットマップ(文字列）を取得する.
+     * 選択状態をセットする.
+     *
+     * @param selected 選択状態
      */
-    public String getBitmapString() {
-        return mBitmapString;
+    public void setSelected(boolean selected) {
+        mIsSelected = selected;
     }
 
     /**
-     * ビットマップ(文字列）セットをする.
+     * URI(文字列)を取得する.
+     *
+     * @return URI(文字列)
      */
-    public void setBitmapString(String bitmapString) {
-        mBitmapString = bitmapString;
+    public String getUriString() {
+        return mUriString;
     }
 
     /**
-     * ビットマップを取得する
+     * URI(文字列)をセットする.
+     *
+     * @param uriString URI(文字列)
      */
-    public Bitmap getBitmap() {
-        return BitmapUtil.StringToBitMap(mBitmapString);
-    }
-
-    /**
-     * 数量情報をセットする
-     */
-    public void setQuantityInfo(QuantityInfoEntity quantityInfoEntity) {
-        mQuantity = quantityInfoEntity.getQuantity();
-        mIsSelected = quantityInfoEntity.isSelected();
-        mComment = quantityInfoEntity.getComment();
-        mBitmapString = quantityInfoEntity.getBitmapString();
+    public void setUriString(String uriString) {
+        mUriString = uriString;
     }
 }
 

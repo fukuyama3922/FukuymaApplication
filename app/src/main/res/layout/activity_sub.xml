@@ -1,59 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_alignParentTop="true"
         android:orientation="vertical">
-        <!--- <test pattern="SECAM" />
-               <TextView
-                   android:id="@+id/textView7"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="0"
-                   android:text="TextView" />
 
-               <TextView
-                   android:id="@+id/textView5"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="0"
-                   android:text="TextView" />
-     <test pattern="NTSC" /> -->
-        <!---/>
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:gravity="center_horizontal"
-            android:text="TextView" />
-<-->
+        <!-- 画像表示領域 -->
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            app:srcCompat="@mipmap/ic_launcher" />
+            android:layout_height="wrap_content" />
 
-        <Button
-            android:id="@+id/activity_detail_select_button"
+        <!-- 時刻表示領域 -->
+        <TextView
+            android:id="@+id/text_date"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="画像を選択する" />
+            android:layout_height="wrap_content" />
 
-        <Button
-            android:id="@+id/return_button"
+        <!-- コメント表示領域 -->
+        <EditText
+            android:id="@+id/text_comment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="戻る" />
+            android:layout_height="wrap_content" />
+
+        <!-- 数量表示領域 -->
+        <TextView
+            android:id="@+id/text_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-</LinearLayout>
+    <!-- フッター表示領域 -->
+    <RelativeLayout
+        android:id="@+id/footer_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <!-- 画像選択ボタン -->
+        <Button
+            android:id="@+id/activity_detail_select_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="@string/label_select_image" />
+
+        <!-- 戻るボタン -->
+        <Button
+            android:id="@+id/return_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="@string/label_return" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

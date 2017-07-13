@@ -1,9 +1,5 @@
 package com.fukuyama.fukuyamaapplication.db;
 
-/**
- * Created by fukuyama on 2017/07/08.
- */
-
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -11,9 +7,10 @@ import com.fukuyama.fukuyamaapplication.Application;
 import com.fukuyama.fukuyamaapplication.Observer;
 
 /**
- * 追加処理用のタスク
+ * Created by fukuyama on 2017/07/13.
  */
-public class DeleteTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
+
+public class ClearTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
 
     /**
      * {@link Context}
@@ -21,7 +18,7 @@ public class DeleteTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
     private Context mContext;
 
     // コンストラクタ
-    public DeleteTask(Context context) {
+    public ClearTask(Context context) {
         mContext = context;
     }
 
@@ -34,17 +31,18 @@ public class DeleteTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
     @Override
     protected Long doInBackground(QuantityInfoEntity... quantityInfoEntities) {
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
-        return quantityInfoDao.deleteQuantity(quantityInfoEntities[0]);
+        return quantityInfoDao.clearQuantity(quantityInfoEntities[0]);
     }
 
     /**
-     * オブザーバーに通知
+     * オブザーバーに通知update
      *
      * @param result
-     */
+     * */
+
     @Override
     protected void onPostExecute(Long result) {
-        Application.notifyObservers(Observer.NOTIFICATION_CODE_DELETE_QUERY_COMPLETE, new Object[]{null, result, null});
+        Application.notifyObservers(Observer.NOTIFICATION_CODE_CLEAR_QUERY_COMPLETE, new Object[]{null, null, result});
     }
 
 //    @Override

@@ -1,24 +1,27 @@
 package com.fukuyama.fukuyamaapplication.activity;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.Observer;
+import com.fukuyama.fukuyamaapplication.R;
+import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
+import com.fukuyama.fukuyamaapplication.db.UpdateTask;
 import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
 import com.fukuyama.fukuyamaapplication.util.MessageUtil;
-import com.fukuyama.fukuyamaapplication.R;
 
 import java.io.IOException;
-
-/**
- * Created by fukuyama on 2017/06/10.
- */
 
 /**
  * サブアクティビティ.
@@ -28,34 +31,56 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     /**
      * サブアクティビティから呼び出したことを認識するコード.
      */
-    private static final int REQUEST_CODE_SUBACTIVITY = 1000;
+    private static final int REQUEST_CODE_SUB_ACTIVITY = 1001;
 
     /**
-     * インテントキー:数量情報.
+     * インテントタイプ.
      */
-    private static final String INTENT_KEY_QUANTITY_INFO_LIST = "intent_key_quantity_info_list";
+    private static final String INTENT_TYPE = "image/*";
 
     /**
-     * 数量情報リスト保持用.
+     * {@link QuantityInfoEntity}
      */
     private QuantityInfoEntity mQuantityInfoEntity;
 
     /**
-     * イメージビュー.
+     * {@link Observer}
      */
-    private ImageView mImageView;
+    private Observer mObserver = new Observer() {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void notification(int notificationCode, Object[] options) {
+
+            dismissProgressDialog();
+
+            switch (notificationCode) {
+                case Observer.NOTIFICATION_CODE_UPDATE_QUERY_COMPLETE:
+                    // DB更新処理完了時
+
+                    if ((long) options[Observer.OPTION_INDEX_UPDATE_QUERY_RESULT] == -1) {
+                        MessageUtil.showToast(getApplicationContext(), "DB更新処理に失敗");
+                        return;
+                    }
+
+                    finish();
+                    return;
+                default:
+                    return;
+            }
+        }
+    };
 
     /**
      * インテント生成.
      *
-     * @param activity     {@link Activity}
-     * @param quantityInfoEntity 数量情報
-     * @return {@link Intent}
+     * @param context {@link Context}
+     *                * @return {@link Intent}
      */
-    public static Intent getNewIntent(Activity activity, QuantityInfoEntity quantityInfoEntity) {
-
-        Intent intent = new Intent(activity, SubActivity.class);
-        intent.putExtra(INTENT_KEY_QUANTITY_INFO_LIST, quantityInfoEntity);
+    public static Intent getNewIntent(Context context) {
+        Intent intent = new Intent(context, SubActivity.class);
         return intent;
     }
 
@@ -67,6 +92,9 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
 
+        // 数量情報をメモリに保持
+        mQuantityInfoEntity = Application.getQuantityInfoEntity();
+
         // 画面初期表示
         initView();
     }
@@ -75,35 +103,32 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      * {@inheritDoc}
      */
     @Override
+    protected void onResume() {
+        super.onResume();
+        Application.addObserver(mObserver);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Application.removeObserver(mObserver);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == REQUEST_CODE_SUBACTIVITY && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_SUB_ACTIVITY && resultCode == RESULT_OK) {
             Uri uri = null;
             if (resultData != null) {
                 uri = resultData.getData();
-
-                try {
-                    Bitmap bitmap1 = getBitmapFromUri(uri);
-                    //画像のサイズを取得するメソッド
-                    int width  = bitmap1.getWidth();
-                    int height = bitmap1.getHeight();
-                    // 画像サイズの文字列を返す
-                    String size = "w:" + width + ",h:" + height;
-
-                    MessageUtil.showToast(this,size);
-                    //選択した画像をサムネイルとしてアルバム上にずらっと何枚も表示
-                    //サムネイルをクリックすることでギャラリー内の元解像度の画像を表示
-                    //巣ワイプなどで詳細画面ないの画像を切り替え
-
-                    bitmap1 = Bitmap.createScaledBitmap(getBitmapFromUri(uri), 500, 500, false);
-
-                    mImageView.setImageBitmap(bitmap1);
-//                    bitmap1 = Bitmap.createScaledBitmap(getBitmapFromUri(uri), 500, 500, false);
-                    String convertBitmap = BitmapUtil.BitMapToString(bitmap1);
-                    mQuantityInfoEntity.setBitmapString(convertBitmap);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                String stringUri = BitmapUtil.uriToString(uri);
+                mQuantityInfoEntity.setUriString(stringUri);
+                updateImageView(stringUri);
             }
         }
     }
@@ -118,11 +143,9 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
             case R.id.activity_detail_select_button:
                 onClickSelectButton();
                 return;
-
             case R.id.return_button:
                 onClickReturnButton();
                 return;
-
             default:
                 return;
         }
@@ -132,16 +155,103 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      * 初期表示.
      */
     private void initView() {
+        // 初期設定
+        initSetting();
+
+        // コメント表示欄の表示更新
+        updateCommentText(mQuantityInfoEntity.getComment());
+
+        // 時刻表示欄の表示更新
+        updateDateText(mQuantityInfoEntity.getDate());
+
+        // 数量表示欄の表示更新
+        updateQuantity(String.valueOf(mQuantityInfoEntity.getQuantity()));
+
+        // 画僧表示領域の表示更新
+        if (!TextUtils.isEmpty(mQuantityInfoEntity.getUriString())) {
+            updateImageView(mQuantityInfoEntity.getUriString());
+        }
+
+    }
+
+    /**
+     * 表示更新.
+     */
+    private void updateView() {
+        // TODO:未実装
+        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
+        QuantityInfoEntity findValue = quantityInfoDao.findById(mQuantityInfoEntity);
+        updateImageView(findValue.getUriString());
+    }
+
+    /**
+     * コメント表示欄の表示を更新する.
+     *
+     * @param text コメント表示欄に表示する文字列
+     */
+    private void updateCommentText(String text) {
+        updateText(R.id.text_comment, text);
+    }
+
+    /**
+     * 時刻表示欄の表示を更新する.
+     *
+     * @param text 時刻表示欄に表示する文字列.
+     */
+    private void updateDateText(String text) {
+        updateText(R.id.text_date, text);
+    }
+
+    /**
+     * 数量表示欄の表示を更新する.
+     *
+     * @param text 数量表示欄に表示する文字列
+     */
+    private void updateQuantity(String text) {
+        updateText(R.id.text_quantity, text);
+    }
+
+    /***
+     * 任意のTextViewの表示を更新する.
+     *
+     * @param resId リソースID
+     * @param text TextViewに表示させる文字列
+     */
+    private void updateText(int resId, String text) {
+        TextView textView = (TextView) findViewById(resId);
+        textView.setText(text);
+    }
+
+    // TODO:仮処理
+
+    /**
+     * 画像表示領域の表示を更新する.
+     */
+    private void updateImageView(String uriString) {
+        Bitmap bitmap = null;
+        Uri uri = BitmapUtil.stringToUri(uriString);
+
+        try {
+            bitmap = BitmapUtil.getBitmapFromUri(this, uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (bitmap == null) {
+            return;
+        }
+        bitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+        ImageView imageView = (ImageView) findViewById(R.id.image_view);
+        imageView.setImageBitmap(bitmap);
+    }
+
+    /**
+     * 初期設定.
+     */
+    private void initSetting() {
+
+        // タイトルをセット
         setTitle("SubActivity");
-
-        mQuantityInfoEntity = (QuantityInfoEntity) getIntent().getSerializableExtra(INTENT_KEY_QUANTITY_INFO_LIST);
-
-
-        mImageView = (ImageView) findViewById(R.id.image_view);
-//       Bitmap bitmap2 =Bitmap.createScaledBitmap(mQuantityInfoEntity.getBitmap(), 500, 500, false);
-        mImageView.setImageBitmap(mQuantityInfoEntity.getBitmap());
-
-
 
         // TODO:仮のボタン
         // 選択ボタン設定
@@ -154,6 +264,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         returnButton.setOnClickListener(this);
     }
 
+
     // TODO:仮処理
 
     /**
@@ -162,8 +273,8 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     private void onClickSelectButton() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        startActivityForResult(intent, REQUEST_CODE_SUBACTIVITY);
+        intent.setType(INTENT_TYPE);
+        startActivityForResult(intent, REQUEST_CODE_SUB_ACTIVITY);
     }
 
     // TODO:仮処理
@@ -172,10 +283,28 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      * 戻るボタン押下時の処理.
      */
     private void onClickReturnButton() {
-        Intent intent = new Intent();
-        intent.putExtra("intent-key", mQuantityInfoEntity);
-        setResult(RESULT_OK, intent);
-        finish();
+        executeUpdateTable(mQuantityInfoEntity);
+    }
+
+    /**
+     * コメント入力欄で編集された文字列を取得する.
+     *
+     * @return コメント入力欄で編集された文字列
+     */
+    private String getComment() {
+        EditText edit = (EditText) findViewById(R.id.text_comment);
+        return edit.getText().toString();
+    }
+
+    /**
+     * DB更新処理を実行する.
+     *
+     * @param quantityInfoEntity {@link QuantityInfoEntity}
+     */
+    private void executeUpdateTable(QuantityInfoEntity quantityInfoEntity) {
+        showProgressDialog(getString(R.string.progress_message_db_update));
+        UpdateTask Task = new UpdateTask(this);
+        Task.execute(quantityInfoEntity);
     }
 }
 

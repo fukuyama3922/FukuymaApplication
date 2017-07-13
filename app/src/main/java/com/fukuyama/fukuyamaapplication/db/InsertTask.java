@@ -12,7 +12,6 @@ import com.fukuyama.fukuyamaapplication.Observer;
 
 /**
  * 追加処理用のタスク
- *
  */
 public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
 
@@ -34,13 +33,6 @@ public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
      */
     @Override
     protected Long doInBackground(QuantityInfoEntity... quantityInfoEntities) {
-
-        try {
-            Thread.sleep(3000L);
-        } catch (InterruptedException e) {
-
-        }
-
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
         return quantityInfoDao.insertQuantity(quantityInfoEntities[0]);
     }
@@ -52,11 +44,11 @@ public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
      */
     @Override
     protected void onPostExecute(Long result) {
-        Application.notifityObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{result, null});
+        Application.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{result, null, null});
     }
 
 //    @Override
 //    protected void onCancelled() {
-//        Application.notifityObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
+//        Application.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
 //    }
 }

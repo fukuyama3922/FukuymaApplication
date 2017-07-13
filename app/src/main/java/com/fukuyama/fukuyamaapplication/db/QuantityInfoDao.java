@@ -6,10 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.fukuyama.fukuyamaapplication.Application;
-import com.fukuyama.fukuyamaapplication.Observer;
-import com.fukuyama.fukuyamaapplication.activity.MainActivity;
-
 import java.util.ArrayList;
 
 /**
@@ -21,32 +17,6 @@ public class QuantityInfoDao {
      * DB処理結果：失敗.
      */
     public static final long RESULT_FAILURE = -1;
-
-    //テーブル名
-    public static final String DB_TABLE = "mSheet";
-
-    //IDカラム
-    public static final String COL_ID = "col_id";
-
-    //数量カラム
-    public static final String COL_UPDATED_QUANTITY = "col_updatedQuantity";
-
-    //日時カラム
-    public static final String COL_DATE = "col_date";
-
-    //タイトルカラム
-    public static final String COL_COMMENT = "col_comment";
-
-    //画像カラム
-    public static final String COL_PICTURE = "col_picture";
-
-    private static final String[] COLUMNS = {
-            COL_ID,
-            COL_UPDATED_QUANTITY,
-            COL_DATE,
-            COL_COMMENT,
-            COL_PICTURE
-    };
 
     /**
      * {@link SQLiteDatabase}
@@ -64,7 +34,7 @@ public class QuantityInfoDao {
      * @param context {@link Context}
      */
     public QuantityInfoDao(Context context) {
-        mDbOpenHelper = new DbOpenHelper((MainActivity) context);
+        mDbOpenHelper = new DbOpenHelper(context);
     }
 
     /**
@@ -133,13 +103,22 @@ public class QuantityInfoDao {
             openReadableDb();
             beginTransaction();
 
-            Cursor cursor = mDb.query(DB_TABLE, null, null, null, null, null, COL_ID);
+            Cursor cursor = mDb.query(
+                    DbConst.DB_TABLE,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    DbConst.COL_ID);
+
             while (cursor.moveToNext()) {
                 QuantityInfoEntity quantityInfoEntity = new QuantityInfoEntity();
                 quantityInfoEntity.setId(cursor.getInt(0));
                 quantityInfoEntity.setQuantity(cursor.getInt(1));
                 quantityInfoEntity.setDate(cursor.getString(2));
                 quantityInfoEntity.setComment(cursor.getString(3));
+                quantityInfoEntity.setUriString(cursor.getString(4));
                 quantityInfoEntityList.add(quantityInfoEntity);
             }
         } catch (Exception e) {
@@ -150,6 +129,46 @@ public class QuantityInfoDao {
         }
         return quantityInfoEntityList;
     }
+
+    /**
+     * 任意のIDのレコードを取得する.
+     *
+     * @return テーブル全件リスト
+     */
+    public QuantityInfoEntity findById(QuantityInfoEntity quantityInfoEntity) {
+        QuantityInfoEntity findValue = new QuantityInfoEntity();
+        try {
+            openReadableDb();
+            beginTransaction();
+
+            String selection = DbConst.COL_ID + "=?";
+            String[] selectionArgs = new String[]{String.valueOf(quantityInfoEntity.getId())};
+            Cursor cursor = mDb.query(
+                    DbConst.DB_TABLE,
+                    null,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    DbConst.COL_ID);
+
+            while (cursor.moveToNext()) {
+
+                findValue.setId(cursor.getInt(0));
+                findValue.setQuantity(cursor.getInt(1));
+                findValue.setDate(cursor.getString(2));
+                findValue.setComment(cursor.getString(3));
+                findValue.setUriString(cursor.getString(4));
+            }
+        } catch (Exception e) {
+            // TODO：ログを出力する
+        } finally {
+            endTransaction();
+            closeDb();
+        }
+        return findValue;
+    }
+
 
     /**
      * テーブルに数量情報を追加する.
@@ -166,17 +185,16 @@ public class QuantityInfoDao {
             beginTransaction();
 
             ContentValues contentValues = new ContentValues();
-            contentValues.put(COL_UPDATED_QUANTITY, quantityInfoEntity.getQuantity());
-            contentValues.put(COL_DATE, quantityInfoEntity.getDate());
-            contentValues.put(COL_COMMENT, quantityInfoEntity.getComment());
-            // TODO:後で修正
-            contentValues.put(COL_PICTURE, 1);
+            contentValues.put(DbConst.COL_UPDATED_QUANTITY, quantityInfoEntity.getQuantity());
+            contentValues.put(DbConst.COL_DATE, quantityInfoEntity.getDate());
+            contentValues.put(DbConst.COL_COMMENT, quantityInfoEntity.getComment());
+            contentValues.put(DbConst.COL_IMAGE_URI, quantityInfoEntity.getUriString());
 
-            result = mDb.insert(DB_TABLE, null, contentValues);
+            result = mDb.insert(DbConst.DB_TABLE, null, contentValues);
             setTransactionSuccessful();
 
         } catch (Exception e) {
-            Log.e("aaa", e.getMessage());
+            // TODO:ログ出力する
             result = RESULT_FAILURE;
         } finally {
             endTransaction();
@@ -185,63 +203,15 @@ public class QuantityInfoDao {
         return result;
     }
 
-
-    public void saveDB(int updatedQuantity, String date, String comment, String picture) {
-        //トランザクション開始.
-        mDb.beginTransaction();
-
-        try {
-            ContentValues values = new ContentValues();
-            values.put(COL_UPDATED_QUANTITY, updatedQuantity);
-            values.put(COL_DATE, date);
-            values.put(COL_COMMENT, comment);
-            values.put(COL_PICTURE, picture);
-
-            //レコードへ登録
-            //insertメソッド　データ登録
-            //第1引数：DBのテーブル名
-            //第2引数：更新する条件式
-            //第3引数：ContentValues
-            mDb.insert(DB_TABLE, null, values);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-
-            mDb.endTransaction();
-        }
-    }
-
-    public Cursor getDB(String[] columns) {
-
-        //queryメソッド　DBのデータを取得
-        //第1引数：DBのテーブル名.
-        //第2引数：所得するカラム名.
-        //第3引数：選択条件(WHERE句).
-        //第4引数：第3引数のWERE句において？を使用した場合に使用.
-        //第5引数：集計条件(GROUP BY句).
-        //第6引数：選択条件(HAVING句).
-        //第7引数：ソート条件(ODERBY句).
-        return mDb.query(DB_TABLE, columns, null, null, null, null, null);
-    }
-
-    public Cursor searchDB(String[] columns, String column, String[] name) {
-        return mDb.query(DB_TABLE, columns, column + "like ?", name, null, null, null);
-    }
-
     /**
      * DBのレコードを全削除.
      * allDelete().
      */
-    public void allDelete() {
+    public void clearQuantity() {
         //トランザクションの開始.
         mDb.beginTransaction();
         try {
-            //deleteメソッド.
-            //第1引数：テーブル名.
-            //第2引数：削除する条件式 nullの場合は全レコードを削除.
-            //第3引数：第2引数で?を使用した場合に使用
-            mDb.delete(DB_TABLE, null, null);
+            mDb.delete(DbConst.DB_TABLE, null, null);
             //トランザクションへコミット.
             mDb.setTransactionSuccessful();
         } catch (Exception e) {
@@ -256,7 +226,7 @@ public class QuantityInfoDao {
      * DBのレコードの単一削除.
      * selectDelete.
      *
-     * @param quantityInfoEntity
+     * @param quantityInfoEntity 数量情報
      */
     public long deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
         long result;
@@ -266,14 +236,14 @@ public class QuantityInfoDao {
             openWritableDb();
             beginTransaction();
 
-            String whereClause = COL_ID + "=?";
+            String whereClause = DbConst.COL_ID + "=?";
             String[] whereArgs = new String[]{String.valueOf(quantityInfoEntity.getId())};
 
-            result = mDb.delete(DB_TABLE, whereClause, whereArgs);
+            result = mDb.delete(DbConst.DB_TABLE, whereClause, whereArgs);
             setTransactionSuccessful();
 
         } catch (Exception e) {
-            Log.e("aaa", e.getMessage());
+            // TODO:ログ出力する
             result = RESULT_FAILURE;
         } finally {
             endTransaction();
@@ -282,6 +252,39 @@ public class QuantityInfoDao {
         return result;
     }
 
+    /**
+     * テーブルの数量情報を更新する.
+     *
+     * @param quantityInfoEntity {@link QuantityInfoEntity}
+     */
+    public long updateQuantity(QuantityInfoEntity quantityInfoEntity) {
 
+        long result;
+
+        try {
+
+            openWritableDb();
+            beginTransaction();
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DbConst.COL_UPDATED_QUANTITY, quantityInfoEntity.getQuantity());
+            contentValues.put(DbConst.COL_DATE, quantityInfoEntity.getDate());
+            contentValues.put(DbConst.COL_COMMENT, quantityInfoEntity.getComment());
+            contentValues.put(DbConst.COL_IMAGE_URI, quantityInfoEntity.getUriString());
+
+            String whereClause = DbConst.COL_ID + "=?";
+            String whereArgs[] = new String[]{String.valueOf(quantityInfoEntity.getId())};
+
+            result = mDb.update(DbConst.DB_TABLE, contentValues, whereClause, whereArgs);
+            setTransactionSuccessful();
+
+        } catch (Exception e) {
+            // TODO:ログ出力する
+            result = RESULT_FAILURE;
+        } finally {
+            endTransaction();
+            closeDb();
+        }
+        return result;
+    }
 }
-//   -

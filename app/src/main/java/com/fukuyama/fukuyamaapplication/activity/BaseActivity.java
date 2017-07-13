@@ -1,19 +1,18 @@
 package com.fukuyama.fukuyamaapplication.activity;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
-
-import java.io.FileDescriptor;
-import java.io.IOException;
 
 /**
  * ベースアクティビティ.
  */
 public class BaseActivity extends AppCompatActivity {
+
+    /**
+     * プログレスダイアログ.
+     */
+    private ProgressDialog mProgressDialog;
 
     /**
      * {@inheritDoc}
@@ -39,19 +38,31 @@ public class BaseActivity extends AppCompatActivity {
         super.onPause();
     }
 
+
     /**
-     * ビットマップを取得する.
+     * プログレスを表示する.
      *
-     * @param uri {@link Uri}
-     * @return ビットマップ
-     * @throws IOException
+     * @param progressMessage プログレスメッセージ
      */
-    protected Bitmap getBitmapFromUri(Uri uri) throws IOException {
-        ParcelFileDescriptor parcelFileDescriptor =
-                getContentResolver().openFileDescriptor(uri, "r");
-        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-        parcelFileDescriptor.close();
-        return image;
+    protected void showProgressDialog(String progressMessage) {
+        if (mProgressDialog != null) {
+            return;
+        }
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage(progressMessage);
+        mProgressDialog.setCancelable(true);
+        mProgressDialog.show();
+    }
+
+    /**
+     * プログレスを非表示にする.
+     */
+    protected void dismissProgressDialog() {
+        if (mProgressDialog == null) {
+            return;
+        }
+        mProgressDialog.dismiss();
+        mProgressDialog = null;
     }
 }

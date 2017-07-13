@@ -7,54 +7,49 @@
     <!-- チェックボックス　-->
     <CheckBox
         android:id="@+id/check_select"
-        android:layout_width="@dimen/size_button_small_width"
-        android:layout_height="105dp"
-        android:focusableInTouchMode="false"
-        android:layout_alignParentLeft="true" />
-
-    <!-- 時刻表示欄 -->
-    <TextView
-        android:id="@+id/text_time"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/check_select"
-        android:elevation="0dp"
-        android:text="TextView" />
-
-    <!-- 数量表示欄 -->
-    <TextView
-        android:id="@+id/text_quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/text_time" />
+        android:layout_alignParentLeft="true"
+        android:focusableInTouchMode="false" />
 
-    <!-- コメント表示欄 -->
-    <TextView
-        android:id="@+id/text_comment"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/text_quantity"
-        android:text="TextView"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/text_quantity" />
+        android:layout_marginLeft="@dimen/size_list_item_margin_left_and_right"
+        android:layout_marginRight="@dimen/size_list_item_margin_left_and_right"
+        android:layout_toLeftOf="@+id/button_delete"
+        android:layout_toRightOf="@+id/check_select"
+        android:orientation="horizontal">
 
-    <!-- ビットマップ表示欄 -->
-    <ImageView
-        android:id="@+id/image_bitmap_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/text_comment"
-        android:isScrollContainer="true"
-        android:layout_alignParentTop="true" />
+        <!-- 時刻表示欄 -->
+        <TextView
+            android:id="@+id/text_time"
+            style="@style/ListItemLabel" />
+
+        <!-- 数量表示欄 -->
+        <TextView
+            android:id="@+id/text_quantity"
+            style="@style/ListItemLabel" />
+
+        <!-- コメント表示欄 -->
+        <TextView
+            android:id="@+id/text_comment"
+            style="@style/ListItemLabel" />
+
+        <!-- 画像状態チェック -->
+        <CheckBox
+            android:id="@+id/check_img"
+            android:layout_width="@dimen/size_0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@drawable/check_img_selector" />
+    </LinearLayout>
 
     <!-- 削除ボタン -->
     <Button
         android:id="@+id/button_delete"
-        android:layout_width="@dimen/size_button_small_width"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/image_bitmap_container"
         android:layout_alignParentRight="true"
         android:focusable="false"
         android:focusableInTouchMode="false"

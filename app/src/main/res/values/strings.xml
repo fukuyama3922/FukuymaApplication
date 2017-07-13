@@ -3,8 +3,13 @@
 
     <!-- ラベル -->
     <string name="label_delete">削除</string>
+    <string name="label_select_image">画像を選択する</string>
+    <string name="label_return">戻る</string>
 
     <!-- メッセージ -->
     <string name="message_input_error">入力できません。</string>
+    <string name="progress_message_db_insert">DB追加処理中</string>
+    <string name="progress_message_db_delete">DB削除処理中</string>
+    <string name="progress_message_db_update">DB更新処理中</string>
 
 </resources>

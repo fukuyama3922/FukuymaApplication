@@ -1,10 +1,13 @@
 package com.fukuyama.fukuyamaapplication.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Base64;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
-import java.io.ByteArrayOutputStream;
+import java.io.FileDescriptor;
+import java.io.IOException;
 
 /**
  * Created by fukuyama on 2017/06/30.
@@ -13,40 +16,43 @@ import java.io.ByteArrayOutputStream;
 public class BitmapUtil {
 
     /**
-     * ビットマップをストリング型に変換する.
+     * ビットマップを取得する.
      *
-     * @param bitmap
-     * @return
+     * @param context {@link Context}
+     * @param uri     {@link Uri}
+     * @return ビットマップ
+     * @throws IOException
      */
-    public static String BitMapToString(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        return Base64.encodeToString(b, Base64.DEFAULT);
+    public static Bitmap getBitmapFromUri(Context context, Uri uri) throws IOException {
+        if (uri == null) {
+            return null;
+        }
+
+        ParcelFileDescriptor parcelFileDescriptor =
+                context.getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
     }
 
     /**
-     * ストリング型をビットマップに変換.
+     * URIを文字列に変換する.
      *
-     * @param bitMapToString
-     * @return
+     * @param uri URI
+     * @return 文字列に変換したURI
      */
-    public static Bitmap StringToBitMap(String bitMapToString) {
-        byte[] encodeByte = Base64.decode(bitMapToString, Base64.DEFAULT);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0,
-                encodeByte.length);
-        return bitmap;
+    public static String uriToString(Uri uri) {
+        return uri.toString();
     }
 
-    public static int getIntValue(int value) {
-        switch (value) {
-            case 1:
-                return 100;
-            case 2:
-                return 200;
-            default:
-                return 300;
-        }
+    /**
+     * 文字列に変換したURIをURIに戻す.
+     *
+     * @param uriString 文字列に変換したURI
+     * @return URI
+     */
+    public static Uri stringToUri(String uriString) {
+        return Uri.parse(uriString);
     }
-
 }

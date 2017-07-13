@@ -4,4 +4,13 @@
     <!-- ボタンサイズ -->
     <dimen name="size_button_small_width">20dp</dimen>
 
+    <!-- ボタンサイズ -->
+    <dimen name="size_button_more_small_width">1dp</dimen>
+
+    <!-- サイズ -->
+    <dimen name="size_0dp">0dp</dimen>
+
+    <!-- マージンサイズ -->
+    <dimen name="size_list_item_margin_left_and_right">5dp</dimen>
+
 </resources>
