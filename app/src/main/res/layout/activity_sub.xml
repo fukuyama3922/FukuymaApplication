@@ -8,11 +8,11 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:orientation="vertical">
-
+        
         <!-- 画像表示領域 -->
         <ImageView
             android:id="@+id/image_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <!-- 時刻表示領域 -->
@@ -47,16 +47,8 @@
             android:id="@+id/activity_detail_select_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_centerHorizontal="true"
             android:text="@string/label_select_image" />
-
-        <!-- 戻るボタン -->
-        <Button
-            android:id="@+id/return_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="@string/label_return" />
 
     </RelativeLayout>
 
