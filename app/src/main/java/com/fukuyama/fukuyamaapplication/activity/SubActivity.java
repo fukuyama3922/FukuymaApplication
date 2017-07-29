@@ -5,19 +5,20 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.AppBean;
 import com.fukuyama.fukuyamaapplication.Observer;
 import com.fukuyama.fukuyamaapplication.R;
-import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
-import com.fukuyama.fukuyamaapplication.db.UpdateTask;
+import com.fukuyama.fukuyamaapplication.db.UpdateTableTask;
 import com.fukuyama.fukuyamaapplication.util.BitmapUtil;
 import com.fukuyama.fukuyamaapplication.util.MessageUtil;
 
@@ -54,24 +55,32 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         @Override
         public void notification(int notificationCode, Object[] options) {
 
-            dismissProgressDialog();
-
             switch (notificationCode) {
                 case Observer.NOTIFICATION_CODE_UPDATE_QUERY_COMPLETE:
                     // DB更新処理完了時
 
                     if ((long) options[Observer.OPTION_INDEX_UPDATE_QUERY_RESULT] == -1) {
-                        MessageUtil.showToast(getApplicationContext(), "DB更新処理に失敗");
+                        MessageUtil.showToast(getApplicationContext(), "DB更新処理失敗");
                         return;
                     }
+                    delay();
 
-                    finish();
                     return;
                 default:
                     return;
             }
         }
     };
+
+    private void delay() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismissProgressDialog();
+                finish();
+            }
+        }, 1000L);
+    }
 
     /**
      * インテント生成.
@@ -93,7 +102,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_sub);
 
         // 数量情報をメモリに保持
-        mQuantityInfoEntity = Application.getQuantityInfoEntity();
+        mQuantityInfoEntity = AppBean.getQuantityInfoEntity();
 
         // 画面初期表示
         initView();
@@ -105,7 +114,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-        Application.addObserver(mObserver);
+        AppBean.addObserver(mObserver);
     }
 
     /**
@@ -114,7 +123,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onPause() {
         super.onPause();
-        Application.removeObserver(mObserver);
+        AppBean.removeObserver(mObserver);
     }
 
     /**
@@ -143,12 +152,25 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
             case R.id.activity_detail_select_button:
                 onClickSelectButton();
                 return;
-            case R.id.return_button:
-                onClickReturnButton();
-                return;
             default:
                 return;
         }
+    }
+
+    /**
+     * バックキーを押したときの処理.
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            executeUpdateTable(mQuantityInfoEntity);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -172,16 +194,6 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
             updateImageView(mQuantityInfoEntity.getUriString());
         }
 
-    }
-
-    /**
-     * 表示更新.
-     */
-    private void updateView() {
-        // TODO:未実装
-        QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
-        QuantityInfoEntity findValue = quantityInfoDao.findById(mQuantityInfoEntity);
-        updateImageView(findValue.getUriString());
     }
 
     /**
@@ -222,8 +234,6 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         textView.setText(text);
     }
 
-    // TODO:仮処理
-
     /**
      * 画像表示領域の表示を更新する.
      */
@@ -240,7 +250,6 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         if (bitmap == null) {
             return;
         }
-        bitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
         ImageView imageView = (ImageView) findViewById(R.id.image_view);
         imageView.setImageBitmap(bitmap);
     }
@@ -257,13 +266,7 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         // 選択ボタン設定
         Button selectButton = (Button) findViewById(R.id.activity_detail_select_button);
         selectButton.setOnClickListener(this);
-
-        // TODO:仮のボタン
-        // リターンボタン押下時の処理
-        Button returnButton = (Button) findViewById(R.id.return_button);
-        returnButton.setOnClickListener(this);
     }
-
 
     // TODO:仮処理
 
@@ -277,25 +280,6 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
         startActivityForResult(intent, REQUEST_CODE_SUB_ACTIVITY);
     }
 
-    // TODO:仮処理
-
-    /**
-     * 戻るボタン押下時の処理.
-     */
-    private void onClickReturnButton() {
-        executeUpdateTable(mQuantityInfoEntity);
-    }
-
-    /**
-     * コメント入力欄で編集された文字列を取得する.
-     *
-     * @return コメント入力欄で編集された文字列
-     */
-    private String getComment() {
-        EditText edit = (EditText) findViewById(R.id.text_comment);
-        return edit.getText().toString();
-    }
-
     /**
      * DB更新処理を実行する.
      *
@@ -303,9 +287,11 @@ public class SubActivity extends BaseActivity implements View.OnClickListener {
      */
     private void executeUpdateTable(QuantityInfoEntity quantityInfoEntity) {
         showProgressDialog(getString(R.string.progress_message_db_update));
-        UpdateTask Task = new UpdateTask(this);
+        UpdateTableTask Task = new UpdateTableTask(this);
         Task.execute(quantityInfoEntity);
     }
+
+
 }
 
 

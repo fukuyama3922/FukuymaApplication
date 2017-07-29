@@ -3,14 +3,14 @@ package com.fukuyama.fukuyamaapplication.db;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.AppBean;
 import com.fukuyama.fukuyamaapplication.Observer;
 
 /**
- * Created by fukuyama on 2017/07/13.
+ * Created by fukuyama on 2017/07/12.
  */
 
-public class ClearTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
+public class UpdateTableTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
 
     /**
      * {@link Context}
@@ -18,9 +18,10 @@ public class ClearTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
     private Context mContext;
 
     // コンストラクタ
-    public ClearTask(Context context) {
+    public UpdateTableTask(Context context) {
         mContext = context;
     }
+
 
     /**
      * バックグラウンドでの追加処理.
@@ -31,7 +32,7 @@ public class ClearTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
     @Override
     protected Long doInBackground(QuantityInfoEntity... quantityInfoEntities) {
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(mContext);
-        return quantityInfoDao.clearQuantity(quantityInfoEntities[0]);
+        return quantityInfoDao.updateQuantity(quantityInfoEntities[0]);
     }
 
     /**
@@ -39,14 +40,13 @@ public class ClearTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
      *
      * @param result
      * */
-
     @Override
     protected void onPostExecute(Long result) {
-        Application.notifyObservers(Observer.NOTIFICATION_CODE_CLEAR_QUERY_COMPLETE, new Object[]{null, null, result});
+        AppBean.notifyObservers(Observer.NOTIFICATION_CODE_UPDATE_QUERY_COMPLETE, new Object[]{null, null, result});
     }
 
 //    @Override
 //    protected void onCancelled() {
-//        Application.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
+//        AppBean.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
 //    }
-}
+    }

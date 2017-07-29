@@ -21,9 +21,6 @@ public interface Observer {
     public static final int NOTIFICATION_CODE_UPDATE_QUERY_COMPLETE = 1003;
 
     /**
-     * 通知コード：DBクリア処理完了
-     */
-    public static final int NOTIFICATION_CODE_CLEAR_QUERY_COMPLETE = 1004;
 
     /**
      * オプションインデックス:DB追加処理結果.

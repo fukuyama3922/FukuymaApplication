@@ -1,31 +1,28 @@
 package com.fukuyama.fukuyamaapplication.activity;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.AppBean;
 import com.fukuyama.fukuyamaapplication.Observer;
 import com.fukuyama.fukuyamaapplication.QuantityInfoAdapter;
 import com.fukuyama.fukuyamaapplication.QuantityInfoAdapterListener;
 import com.fukuyama.fukuyamaapplication.R;
-import com.fukuyama.fukuyamaapplication.db.DeleteTask;
-import com.fukuyama.fukuyamaapplication.db.InsertTask;
+import com.fukuyama.fukuyamaapplication.db.InfoTableDeleteTask;
+import com.fukuyama.fukuyamaapplication.db.InfoTableInsertTask;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoDao;
 import com.fukuyama.fukuyamaapplication.db.QuantityInfoEntity;
 import com.fukuyama.fukuyamaapplication.util.MessageUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -38,61 +35,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private static final String TAG = MainActivity.class.getName();
 
-    // TODO:定数クラスなどにまとめるべき
-    /**
-     * {@link SubActivity}が破棄された時に送付される識別子.
-     */
-    static final int RESULT_CODE_SUB_ACTIVITY = 1000;
-
-    /**
-     * 数量の上限.
-     */
-    private static final int QUANTITY_MAX = 9999;
-
-    /**
-     * 数量の下限.
-     */
-    private static final int QUANTITY_MIN = 0;
-
-    /**
-     * 加算減算される値.
-     */
-    private static final int QUANTITY_ADD = 1;
-
-    /**
-     * 表示される初期値.
-     */
-    private int mQuantity = QUANTITY_MIN;
-
-    /**
-     * 数量情報リスト(数量、コメント、時刻情報).
-     */
-    private ArrayList<QuantityInfoEntity> mQuantityInfoList;
-
-    /**
-     * 数量情報リスト(View).
-     */
-    private ListView mQuantityInfoListView;
-
-    /**
-     * {@limk Timer}
-     */
-    private Timer mTimer = new Timer();
-
-    /**
-     * {@link TimerTask}
-     */
-    private TimerTask mTimerTask = null;
-
-    /**
-     * 数量情報リストアダプタ保持用.
-     */
-    private QuantityInfoAdapter mAdapter = null;
-
-    /**
-     * 時刻フォーマット(HH:MM:ss.)
-     */
-    private final SimpleDateFormat mFormatter = new SimpleDateFormat("HH:MM:ss.");
 
     /**
      * オブザーバ.
@@ -105,7 +47,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         @Override
         public void notification(int notificationCode, Object[] options) {
 
-            dismissProgressDialog();
+
 
             switch (notificationCode) {
                 case Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE:
@@ -115,7 +57,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         MessageUtil.showToast(getApplicationContext(), "DB追加処理失敗");
                         return;
                     }
-                    updateView();
+                    delay();
+
 
                     return;
 
@@ -126,11 +69,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         MessageUtil.showToast(getApplicationContext(), "DB削除処理失敗");
                         return;
                     }
-                    updateView();
+                    delay();
 
                     return;
 
                 default:
+
                     return;
             }
         }
@@ -155,7 +99,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onResume() {
         super.onResume();
 
-        mTimerTask = new TimerTask() {
+        ActivityConst.mTimerTask = new TimerTask() {
 
             /**
              * {@inheritDoc}
@@ -175,10 +119,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 });
             }
         };
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, 1000);
+        ActivityConst.mTimer.scheduleAtFixedRate(ActivityConst.mTimerTask, 0, 1000);
 
         // オブザーバ登録
-        Application.addObserver(mObserver);
+        AppBean.addObserver(mObserver);
     }
 
     /**
@@ -188,10 +132,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onPause() {
         super.onPause();
         //バックグラウンドでの時刻表示の廃止.
-        mTimerTask.cancel();
+        ActivityConst.mTimerTask.cancel();
 
         // オブザーバを削除
-        Application.removeObserver(mObserver);
+        AppBean.removeObserver(mObserver);
     }
 
     /**
@@ -210,20 +154,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         // Applicationに数量情報を保持
-        Application.setQuantityInfoEntity(mQuantityInfoList.get(position));
+        AppBean.setQuantityInfoEntity(ActivityConst.mQuantityInfoList.get(position));
 
         //詳細画面の表示.
         showSubActivity();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onClickDelete(QuantityInfoEntity quantityInfoEntity) {
-        showProgressDialog(getString(R.string.progress_message_db_delete));
-        DeleteTask task = new DeleteTask(getApplicationContext());
-        task.execute(quantityInfoEntity);
     }
 
     /**
@@ -231,7 +165,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void showSubActivity() {
         Intent intent = SubActivity.getNewIntent(this);
-        startActivityForResult(intent, RESULT_CODE_SUB_ACTIVITY);
+        startActivityForResult(intent, ActivityConst.RESULT_CODE_SUB_ACTIVITY);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onClickDelete(QuantityInfoEntity quantityInfoEntity) {
+        executeDeleteTask(quantityInfoEntity);
     }
 
     /**
@@ -275,7 +217,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         initSetting();
 
         //初期表示される数量.
-        updateQuantityText(mQuantity);
+        updateQuantityText(ActivityConst.mQuantity);
 
         // 数量情報リストの表示
         showQuantityInfoList();
@@ -293,7 +235,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void updateDateText(Date date) {
         TextView dateTextView = (TextView) findViewById(R.id.text_time);
-        dateTextView.setText(mFormatter.format(date));
+        dateTextView.setText(ActivityConst.mFormatter.format(date));
     }
 
     /**
@@ -311,9 +253,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void initSetting() {
         // 数量情報リストの設定
-        mQuantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
-        mAdapter = new QuantityInfoAdapter(MainActivity.this);
-        mAdapter.setQuantityInfoAdapterListener(this);
+        ActivityConst.mQuantityInfoListView = (ListView) findViewById(R.id.listview_quantity_info);
+        ActivityConst.mAdapter = new QuantityInfoAdapter(MainActivity.this);
+        ActivityConst.mAdapter.setQuantityInfoAdapterListener(this);
 
         //プラスボタンの設定.
         final Button plusButton = (Button) findViewById(R.id.button_plus);
@@ -331,7 +273,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         final Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(this);
 
-        // 選択された合計数量ボタン
+        // 選択された合計数量ボタンの設定.
         final Button selectButton = (Button) findViewById(R.id.select_button);
         selectButton.setOnClickListener(this);
     }
@@ -340,17 +282,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      * 数量情報リストを表示する.
      */
     private void showQuantityInfoList() {
-        mAdapter.setQuantityInfoList(getQuantityInfoList());
-        mQuantityInfoListView.setAdapter(mAdapter);
-        mQuantityInfoListView.setOnItemClickListener(this);
-    }
-
-    /**
-     * 追加ボタン押下時の処理.
-     */
-    private void onClickAddButton() {
-        // リストを1件追加
-        addQuantityInfo();
+        ActivityConst.mAdapter.setQuantityInfoList(getQuantityInfoList());
+        ActivityConst.mQuantityInfoListView.setAdapter(ActivityConst.mAdapter);
+        ActivityConst.mQuantityInfoListView.setOnItemClickListener(this);
     }
 
     /**
@@ -368,35 +302,40 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     /**
+     * 追加ボタン押下時の処理.
+     */
+    private void onClickAddButton() {
+        // リストを1件追加
+        addQuantityInfo();
+    }
+
+    /**
      * クリアボタン押下時の処理.
      */
     private void onClickClearButton() {
         // TODO:処理未実装
-
+        executeDeleteTask(null);
     }
 
-    // TODO:名称後で変更
-
     /**
-     * 選択ボタン押下時の処理.
+     * 選択された合計数量ボタン押下時の処理.
      */
     private void onClickSelectButton() {
         // TODO:処理未実装
     }
-
 
     /**
      * 数量が以下の場合数量を加算する.
      */
     private void calcQuantityPlus() {
         //上限の場合、警告を表示して処理を抜ける
-        if (mQuantity >= QUANTITY_MAX) {
+        if (ActivityConst.mQuantity >= ActivityConst.QUANTITY_MAX) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
-        mQuantity += QUANTITY_ADD;
-        updateQuantityText(mQuantity);
+        ActivityConst.mQuantity += ActivityConst.QUANTITY_ADD;
+        updateQuantityText(ActivityConst.mQuantity);
     }
 
     /**
@@ -404,22 +343,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void calcQuantityMinus() {
         //下限の場合、警告を表示して処理を抜ける
-        if (mQuantity <= QUANTITY_MIN) {
+        if (ActivityConst.mQuantity <= ActivityConst.QUANTITY_MIN) {
             MessageUtil.showToast(this, getString(R.string.message_input_error));
             return;
         }
 
-        mQuantity -= QUANTITY_ADD;
-        updateQuantityText(mQuantity);
-    }
-
-    /**
-     * リストを一件追加する.
-     */
-    private void addQuantityInfo() {
-        showProgressDialog(getString(R.string.progress_message_db_insert));
-        InsertTask task = new InsertTask(this);
-        task.execute(getEditQuantityInfo());
+        ActivityConst.mQuantity -= ActivityConst.QUANTITY_ADD;
+        updateQuantityText(ActivityConst.mQuantity);
     }
 
     /**
@@ -442,18 +372,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return textView.getText().toString();
     }
 
-    // TODO
-
-    /**
-     * @return
-     */
-    private Bitmap getBitmap() {
-
-        Resources r = getResources();
-        Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.sample);
-        return bmp;
-    }
-
     /**
      * 追加ボタン押下時に編集されていた数量情報を取得する.
      *
@@ -461,7 +379,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private QuantityInfoEntity getEditQuantityInfo() {
         QuantityInfoEntity quantityInfoEntity = new QuantityInfoEntity();
-        quantityInfoEntity.setQuantity(mQuantity);
+        quantityInfoEntity.setQuantity(ActivityConst.mQuantity);
         quantityInfoEntity.setComment(getComment());
         quantityInfoEntity.setDate(getDate());
         return quantityInfoEntity;
@@ -476,8 +394,54 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         QuantityInfoDao quantityInfoDao = new QuantityInfoDao(this);
         ArrayList<QuantityInfoEntity> quantityInfoList = quantityInfoDao.findAll();
         // DBから数量情報リストを取得する際にメモリに保持
-        mQuantityInfoList = quantityInfoList;
+        ActivityConst.mQuantityInfoList = quantityInfoList;
         return quantityInfoList;
+    }
+
+    /**
+     * リストを一件追加する.
+     */
+    private void addQuantityInfo() {
+
+        showProgressDialog(getString(R.string.progress_message_db_insert));
+        InfoTableInsertTask task = new InfoTableInsertTask(this);
+        task.execute(getEditQuantityInfo());
+    }
+
+//    /**
+//     * DB追加タスクを実行する.
+//     * TODO:採用するかどうか未定.
+//     *
+//     *
+//     * @param quantityInfoEntity 数量情報リスト
+//     */
+//    private void executeInsertTask(QuantityInfoEntity quantityInfoEntity) {
+//        showProgressDialog("DB追加処理実行中");
+//        InfoTableInsertTask insertTask = new InfoTableInsertTask(this);
+//
+//        insertTask.execute(quantityInfoEntity);
+//    }
+
+    /**
+     * DB削除タスクを実行する.
+     *
+     * @param quantityInfoEntity 数量情報リスト
+     */
+    private void executeDeleteTask(QuantityInfoEntity quantityInfoEntity) {
+        showProgressDialog("DB削除処理実行中");
+        InfoTableDeleteTask infoTableDeleteTask = new InfoTableDeleteTask(this);
+        infoTableDeleteTask.execute(quantityInfoEntity);
+    }
+
+    private void delay() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateView();
+                dismissProgressDialog();
+                // ここに３秒後に実行したい処理
+            }
+        }, 1000L);
     }
 }
 

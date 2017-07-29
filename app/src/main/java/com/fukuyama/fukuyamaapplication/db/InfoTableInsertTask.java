@@ -3,7 +3,7 @@ package com.fukuyama.fukuyamaapplication.db;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.fukuyama.fukuyamaapplication.Application;
+import com.fukuyama.fukuyamaapplication.AppBean;
 import com.fukuyama.fukuyamaapplication.Observer;
 
 /**
@@ -13,7 +13,7 @@ import com.fukuyama.fukuyamaapplication.Observer;
 /**
  * 追加処理用のタスク
  */
-public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
+public class InfoTableInsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
 
     /**
      * {@link Context}
@@ -21,7 +21,7 @@ public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
     private Context mContext;
 
     // コンストラクタ
-    public InsertTask(Context context) {
+    public InfoTableInsertTask(Context context) {
         mContext = context;
     }
 
@@ -44,11 +44,11 @@ public class InsertTask extends AsyncTask<QuantityInfoEntity, Void, Long> {
      */
     @Override
     protected void onPostExecute(Long result) {
-        Application.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{result, null, null});
+        AppBean.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{result, null, null});
     }
 
 //    @Override
 //    protected void onCancelled() {
-//        Application.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
+//        AppBean.notifyObservers(Observer.NOTIFICATION_CODE_INSERT_QUERY_COMPLETE, new Object[]{null, null});
 //    }
 }

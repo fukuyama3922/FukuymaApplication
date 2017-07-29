@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
  * 数量情報Daoクラス.
  */
 public class QuantityInfoDao {
+
+    private Handler mHandler = new Handler();
 
     /**
      * DB処理結果：失敗.
@@ -204,29 +207,10 @@ public class QuantityInfoDao {
     }
 
     /**
-     * DBのレコードを全削除.
-     * allDelete().
-     */
-    public void clearQuantity() {
-        //トランザクションの開始.
-        mDb.beginTransaction();
-        try {
-            mDb.delete(DbConst.DB_TABLE, null, null);
-            //トランザクションへコミット.
-            mDb.setTransactionSuccessful();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            //トランザクションの終了.
-            mDb.endTransaction();
-        }
-    }
-
-    /**
-     * DBのレコードの単一削除.
-     * selectDelete.
+     * テーブルから数量情報を削除する.
      *
-     * @param quantityInfoEntity 数量情報
+     * @param quantityInfoEntity {@link QuantityInfoEntity}
+     * @return
      */
     public long deleteQuantity(QuantityInfoEntity quantityInfoEntity) {
         long result;
@@ -236,17 +220,25 @@ public class QuantityInfoDao {
             openWritableDb();
             beginTransaction();
 
-            String whereClause = DbConst.COL_ID + "=?";
-            String[] whereArgs = new String[]{String.valueOf(quantityInfoEntity.getId())};
+            String whereClause = null;
+            String[] whereArgs = null;
 
+            if (quantityInfoEntity != null) {
+                whereClause = DbConst.COL_ID + "=?";
+                whereArgs = new String[]{String.valueOf(quantityInfoEntity.getId())};
+            }
             result = mDb.delete(DbConst.DB_TABLE, whereClause, whereArgs);
+
+
             setTransactionSuccessful();
+
 
         } catch (Exception e) {
             // TODO:ログ出力する
+            Log.e("エラー", e.getMessage());
             result = RESULT_FAILURE;
         } finally {
-            endTransaction();
+                    endTransaction();
             closeDb();
         }
         return result;

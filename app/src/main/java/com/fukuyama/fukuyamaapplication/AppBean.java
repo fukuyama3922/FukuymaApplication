@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by fukuyama on 2017/07/07.
  */
 
-public class Application extends android.app.Application {
+public class AppBean extends android.app.Application {
     //AppBeanの内容
     /**
      * 数量情報リスト.

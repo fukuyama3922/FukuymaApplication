@@ -10,11 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 public class BaseActivity extends AppCompatActivity {
 
     /**
-     * プログレスダイアログ.
-     */
-    private ProgressDialog mProgressDialog;
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -38,31 +33,30 @@ public class BaseActivity extends AppCompatActivity {
         super.onPause();
     }
 
-
     /**
      * プログレスを表示する.
      *
      * @param progressMessage プログレスメッセージ
      */
     protected void showProgressDialog(String progressMessage) {
-        if (mProgressDialog != null) {
+        if (ActivityConst.mProgressDialog != null) {
             return;
         }
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage(progressMessage);
-        mProgressDialog.setCancelable(true);
-        mProgressDialog.show();
+        ActivityConst.mProgressDialog = new ProgressDialog(this);
+        ActivityConst.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        ActivityConst.mProgressDialog.setMessage(progressMessage);
+        ActivityConst.mProgressDialog.setCancelable(false);
+        ActivityConst.mProgressDialog.show();
     }
 
     /**
      * プログレスを非表示にする.
      */
     protected void dismissProgressDialog() {
-        if (mProgressDialog == null) {
+        if (ActivityConst.mProgressDialog == null) {
             return;
         }
-        mProgressDialog.dismiss();
-        mProgressDialog = null;
+        ActivityConst.mProgressDialog.dismiss();
+        ActivityConst.mProgressDialog = null;
     }
 }
